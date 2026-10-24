@@ -1,0 +1,112 @@
+import React from 'react';
+import { Phone, Mail, MapPin, Clock, ShieldCheck, Heart, Sparkles } from 'lucide-react';
+import { useStore } from '../../context/StoreContext';
+
+export default function Footer({ onNavigateAdmin }) {
+  const { settings } = useStore();
+
+  return (
+    <footer className="bg-slate-900 text-slate-300 pt-12 pb-8 mt-16 border-t border-slate-800">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Top grid */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 border-b border-slate-800">
+          
+          {/* Brand Info */}
+          <div className="space-y-3.5 md:col-span-1">
+            <div className="flex items-center gap-2.5">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-kirana-600 to-kirana-700 flex items-center justify-center text-white shadow-md">
+                <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                  <line x1="3" y1="6" x2="21" y2="6"/>
+                  <path d="M16 10a4 4 0 0 1-8 0" stroke="#FBBF24" strokeWidth="2.5"/>
+                </svg>
+              </div>
+              <span className="font-extrabold text-xl tracking-tight text-white">
+                Smart<span className="text-kirana-400">Kirana</span>
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Your trusted neighborhood general store, delivering fresh staples, cool drinks, snacks, dairy, and household essentials right to your doorstep in 15–25 minutes.
+            </p>
+            <div className="flex items-center gap-2 text-xs text-amber-400 font-semibold pt-1">
+              <Sparkles className="w-4 h-4" />
+              <span>100% Genuine Products Guaranteed</span>
+            </div>
+          </div>
+
+          {/* Contact Details */}
+          <div className="space-y-2.5 text-xs">
+            <h4 className="font-bold text-white text-sm uppercase tracking-wider">Store & Support</h4>
+            <div className="flex items-start gap-2.5 text-slate-400">
+              <MapPin className="w-4 h-4 text-kirana-400 flex-shrink-0 mt-0.5" />
+              <span>{settings.storeAddress}</span>
+            </div>
+            <div className="flex items-center gap-2.5 text-slate-400">
+              <Phone className="w-4 h-4 text-kirana-400 flex-shrink-0" />
+              <span>Call / WhatsApp: {settings.phone}</span>
+            </div>
+            <div className="flex items-center gap-2.5 text-slate-400">
+              <Mail className="w-4 h-4 text-kirana-400 flex-shrink-0" />
+              <span>{settings.email}</span>
+            </div>
+            <div className="flex items-center gap-2.5 text-slate-400">
+              <Clock className="w-4 h-4 text-kirana-400 flex-shrink-0" />
+              <span>Daily: {settings.operatingHours}</span>
+            </div>
+          </div>
+
+          {/* Delivery & Policies */}
+          <div className="space-y-2.5 text-xs">
+            <h4 className="font-bold text-white text-sm uppercase tracking-wider">Customer Care</h4>
+            <ul className="space-y-2 text-slate-400">
+              <li><a href="#policies" className="hover:text-kirana-400 transition-colors">Instant Refund & Cancellation Policy</a></li>
+              <li><a href="#policies" className="hover:text-kirana-400 transition-colors">Express Delivery Guidelines</a></li>
+              <li><a href="#policies" className="hover:text-kirana-400 transition-colors">UPI & Payment Security</a></li>
+              <li><a href="#policies" className="hover:text-kirana-400 transition-colors">Terms & Conditions of Sale</a></li>
+              <li><a href="#policies" className="hover:text-kirana-400 transition-colors">Privacy Policy</a></li>
+            </ul>
+          </div>
+
+          {/* Secure UPI & Payments */}
+          <div className="space-y-3 text-xs">
+            <h4 className="font-bold text-white text-sm uppercase tracking-wider">Supported UPI Payments</h4>
+            <p className="text-slate-400 text-xs">
+              Fast, contact-free checkout with your favorite UPI apps:
+            </p>
+            <div className="flex flex-wrap gap-2 text-[11px] font-bold">
+              <span className="px-2.5 py-1 bg-slate-800 border border-slate-700 text-slate-200 rounded-lg">Google Pay</span>
+              <span className="px-2.5 py-1 bg-slate-800 border border-slate-700 text-slate-200 rounded-lg">PhonePe</span>
+              <span className="px-2.5 py-1 bg-slate-800 border border-slate-700 text-slate-200 rounded-lg">Paytm</span>
+              <span className="px-2.5 py-1 bg-slate-800 border border-slate-700 text-slate-200 rounded-lg">BHIM UPI</span>
+              <span className="px-2.5 py-1 bg-slate-800 border border-slate-700 text-slate-200 rounded-lg">CRED</span>
+            </div>
+            <div className="pt-2 flex items-center gap-2 text-kirana-400 text-[11px]">
+              <ShieldCheck className="w-4 h-4" />
+              <span>Verified Merchant QR Code Checkout</span>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Bottom row */}
+        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+          <p>© {new Date().getFullYear()} Smart Kirana. All rights reserved.</p>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={onNavigateAdmin}
+              className="text-amber-400 hover:text-amber-300 font-semibold transition-colors"
+            >
+              Store Administrator Login
+            </button>
+            <span>•</span>
+            <span className="flex items-center gap-1 text-slate-400">
+              Made with <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500 inline" /> for Local Indian Retail
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </footer>
+  );
+}
