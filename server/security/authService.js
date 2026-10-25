@@ -9,6 +9,7 @@ import {
 } from './cryptoUtils.js';
 import { isValidIndianMobile, normalizePhone, sanitizeString } from './sanitizer.js';
 import { recordAuditLog } from './auditLogger.js';
+import { dispatchSmsOtp } from './smsProvider.js';
 
 // In-Memory Secure OTP and Rate Lock Cache
 // Structure: Map<phone, { hash, expiresAt, lastSentAt, attempts, lockedUntil, customerName }>
@@ -17,7 +18,7 @@ const OTP_STORE = new Map();
 /**
  * Request an OTP for customer mobile authentication
  */
-export function requestCustomerOtp(rawPhone, ip = '') {
+export async function requestCustomerOtp(rawPhone, ip = '') {
   if (!isValidIndianMobile(rawPhone)) {
     return {
       success: false,
@@ -83,13 +84,8 @@ export function requestCustomerOtp(rawPhone, ip = '') {
     details: { maskedPhone: maskPhoneNumber(phone) }
   });
 
-  // Securely dispatch OTP (In production: send via Fast2SMS / Twilio API)
-  // For dev / testing transparency, print securely to server log:
-  console.log(`\n======================================================`);
-  console.log(`[SMS GATEWAY DISPATCH] To: +91 ${maskPhoneNumber(phone)}`);
-  console.log(`[SECURITY CODE] Your Smart Kirana login OTP is: ${rawOtp}`);
-  console.log(`[VALIDITY] 5 minutes. Never share this OTP with anyone.`);
-  console.log(`======================================================\n`);
+  // Securely dispatch OTP via Cellular SMS Gateway (or console in simulation)
+  await dispatchSmsOtp(phone, rawOtp);
 
   return {
     success: true,

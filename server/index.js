@@ -109,9 +109,9 @@ app.get('/api/products', (req, res) => {
 // -----------------------------------------------------------------------------
 // AUTHENTICATION & OTP ENDPOINTS
 // -----------------------------------------------------------------------------
-app.post('/api/auth/otp/send', otpRequestLimiter, (req, res) => {
+app.post('/api/auth/otp/send', otpRequestLimiter, async (req, res) => {
   const { phone } = req.body;
-  const result = requestCustomerOtp(phone, req.ip);
+  const result = await requestCustomerOtp(phone, req.ip);
   res.status(result.status).json(result);
 });
 

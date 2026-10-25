@@ -56,5 +56,14 @@ export const SECURITY_CONFIG = {
     AUTH_VERIFY_MAX: 15,     // max 15 verification tries per 15 min
     ADMIN_LOGIN_MAX: 5,      // strict 5 attempts for admin
     CHECKOUT_MAX: 20         // max 20 checkout attempts per 15 min
+  },
+
+  // SMS Carrier Gateway Configuration
+  SMS: {
+    PROVIDER: process.env.SMS_PROVIDER || 'simulation', // 'fast2sms', 'twilio', or 'simulation'
+    FAST2SMS_API_KEY: process.env.FAST2SMS_API_KEY || '',
+    TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID || '',
+    TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN || '',
+    TWILIO_FROM: process.env.TWILIO_FROM || ''
   }
 };

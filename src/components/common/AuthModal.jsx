@@ -19,6 +19,7 @@ export default function AuthModal({ isOpen, onClose, onAdminSuccess }) {
   const [maskedPhone, setMaskedPhone] = useState('');
   const [cooldown, setCooldown] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [devOtp, setDevOtp] = useState('');
 
   // Cooldown countdown timer
   useEffect(() => {
@@ -45,6 +46,9 @@ export default function AuthModal({ isOpen, onClose, onAdminSuccess }) {
       setOtpSent(true);
       setMaskedPhone(res.maskedPhone || phone);
       setCooldown(res.cooldownSeconds || 60);
+      if (res.devOtp) {
+        setDevOtp(res.devOtp);
+      }
     } else {
       setOtpError(res.message || 'Failed to send OTP.');
       if (res.cooldownRemaining) {
@@ -64,6 +68,7 @@ export default function AuthModal({ isOpen, onClose, onAdminSuccess }) {
     if (res.success) {
       setOtpSent(false);
       setOtpCode('');
+      setDevOtp('');
       onClose();
     } else {
       setOtpError(res.message || 'Invalid OTP entered.');
@@ -228,12 +233,41 @@ export default function AuthModal({ isOpen, onClose, onAdminSuccess }) {
               <form onSubmit={handleVerifyOtp} className="space-y-3.5">
                 <div className="p-3 bg-kirana-50 border border-kirana-200 rounded-xl text-xs text-kirana-900">
                   <p className="font-semibold">
-                    Verification code sent to <strong>+91 {maskedPhone}</strong>
+                    Verification code generated for <strong>+91 {maskedPhone}</strong>
                   </p>
                   <p className="text-[11px] text-kirana-700 mt-0.5">
                     Enter the 6-digit cryptographic security code. Valid for 5 minutes.
                   </p>
                 </div>
+
+                {devOtp && (
+                  <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-950 shadow-sm animate-in fade-in duration-200 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold flex items-center gap-1.5 text-amber-900">
+                        <ShieldCheck className="w-4 h-4 text-amber-600" />
+                        Demo Mode / No Carrier Gateway Key
+                      </span>
+                      <span className="text-[10px] bg-amber-200 text-amber-900 font-bold px-1.5 py-0.5 rounded">
+                        Dev Preview
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-amber-800 leading-relaxed">
+                      Physical cellular SMS requires a telecom SMS provider API key (Fast2SMS or Twilio). For instant testing, your server-generated cryptographic OTP is:
+                    </p>
+                    <div className="flex items-center justify-between pt-1">
+                      <span className="font-mono text-xl font-black tracking-widest text-slate-900 bg-white px-3 py-1 rounded-xl border border-amber-300 shadow-inner">
+                        {devOtp}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setOtpCode(devOtp)}
+                        className="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-sm transition-all"
+                      >
+                        Auto-fill OTP
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 <div>
                   <label className="text-xs font-bold text-slate-700">Enter 6-Digit OTP</label>
@@ -261,6 +295,7 @@ export default function AuthModal({ isOpen, onClose, onAdminSuccess }) {
                     onClick={() => {
                       setOtpSent(false);
                       setOtpError('');
+                      setDevOtp('');
                     }}
                     className="text-slate-500 hover:text-slate-700 underline"
                   >
