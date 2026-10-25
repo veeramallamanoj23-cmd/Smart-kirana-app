@@ -15,13 +15,15 @@ import {
   Search, 
   LogOut,
   RefreshCw,
-  Sparkles
+  Sparkles,
+  FileText
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useProducts } from '../../context/ProductContext';
 import { useOrders, ORDER_STATUSES } from '../../context/OrderContext';
 import { useStore } from '../../context/StoreContext';
 import { formatCurrency } from '../../lib/upi';
+import { api } from '../../lib/api';
 import ProductFormModal from './ProductFormModal';
 import AdminOrdersTab from './AdminOrdersTab';
 import AdminSettingsTab from './AdminSettingsTab';
@@ -32,11 +34,22 @@ export default function AdminDashboard({ onBackToStore }) {
   const { orders } = useOrders();
   const { settings } = useStore();
 
-  const [activeTab, setActiveTab] = useState('products'); // 'products', 'orders', 'settings'
+  const [activeTab, setActiveTab] = useState('products'); // 'products', 'orders', 'settings', 'audit'
   const [productSearch, setProductSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [productToEdit, setProductToEdit] = useState(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [loadingLogs, setLoadingLogs] = useState(false);
+
+  const fetchLogs = async () => {
+    setLoadingLogs(true);
+    const res = await api.adminGetAuditLogs();
+    setLoadingLogs(false);
+    if (res.success && res.logs) {
+      setAuditLogs(res.logs);
+    }
+  };
 
   // If not logged in as admin
   if (!isAdmin) {
@@ -194,11 +207,15 @@ export default function AdminDashboard({ onBackToStore }) {
         {[
           { key: 'products', label: 'Products & Inventory', icon: <Package className="w-4 h-4" /> },
           { key: 'orders', label: `Orders (${orders.length})`, icon: <ShoppingCart className="w-4 h-4" /> },
-          { key: 'settings', label: 'Store Settings & Pincodes', icon: <Settings className="w-4 h-4" /> }
+          { key: 'settings', label: 'Store Settings & Pincodes', icon: <Settings className="w-4 h-4" /> },
+          { key: 'audit', label: 'Security & Audit Trail', icon: <FileText className="w-4 h-4" /> }
         ].map(t => (
           <button
             key={t.key}
-            onClick={() => setActiveTab(t.key)}
+            onClick={() => {
+              setActiveTab(t.key);
+              if (t.key === 'audit') fetchLogs();
+            }}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold transition-all ${
               activeTab === t.key
                 ? 'bg-kirana-600 text-white shadow-md shadow-kirana-600/20'
@@ -407,6 +424,60 @@ export default function AdminDashboard({ onBackToStore }) {
       {/* Tab 3: Store Settings & Serviceable Areas */}
       {activeTab === 'settings' && (
         <AdminSettingsTab />
+      )}
+
+      {/* Tab 4: Security & Audit Trail */}
+      {activeTab === 'audit' && (
+        <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-5 sm:p-6 space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div>
+              <h3 className="font-extrabold text-slate-900 text-base">Enterprise Security Audit Trail</h3>
+              <p className="text-xs text-slate-500">Live tamper-evident record of administrative and security events</p>
+            </div>
+            <button
+              onClick={fetchLogs}
+              className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl flex items-center gap-1.5 transition-colors"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Refresh Logs</span>
+            </button>
+          </div>
+
+          <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
+            {loadingLogs ? (
+              <div className="text-center py-10 text-xs text-slate-400">Loading audit events...</div>
+            ) : auditLogs.length === 0 ? (
+              <div className="text-center py-10 text-xs text-slate-400">No audit logs recorded yet.</div>
+            ) : (
+              auditLogs.map((log, idx) => (
+                <div key={idx} className="p-3 bg-slate-50 rounded-2xl border border-slate-100 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className={`font-mono font-bold px-2 py-0.5 rounded text-[10px] ${
+                        log.action.includes('FAILURE') || log.action.includes('LOCKED') || log.action.includes('BLOCKED')
+                          ? 'bg-rose-100 text-rose-800'
+                          : log.action.includes('ADMIN')
+                          ? 'bg-amber-100 text-amber-800'
+                          : 'bg-emerald-100 text-emerald-800'
+                      }`}>
+                        {log.action}
+                      </span>
+                      <span className="text-slate-600 font-semibold">{log.actor} ({log.actorId})</span>
+                    </div>
+                    {log.details && Object.keys(log.details).length > 0 && (
+                      <p className="text-[11px] text-slate-500 font-mono mt-1">
+                        {JSON.stringify(log.details)}
+                      </p>
+                    )}
+                  </div>
+                  <span className="text-[10px] text-slate-400 font-mono whitespace-nowrap self-start sm:self-auto">
+                    {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })} • {new Date(log.timestamp).toLocaleDateString()}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
       )}
 
       {/* Product Add/Edit Modal */}

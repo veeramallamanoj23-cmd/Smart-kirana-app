@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { User, Phone, Mail, Key, ShieldCheck, X, CheckCircle2, ArrowRight } from 'lucide-react';
-import { useAuth, ADMIN_CREDENTIALS } from '../../context/AuthContext';
+import React, { useState, useEffect } from 'react';
+import { User, Phone, Mail, Key, ShieldCheck, X, CheckCircle2, ArrowRight, AlertCircle, Clock } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 export default function AuthModal({ isOpen, onClose, onAdminSuccess }) {
-  const { customer, loginCustomer, logoutCustomer, isAdmin, loginAdmin, logoutAdmin } = useAuth();
+  const { customer, requestOtp, verifyOtp, logoutCustomer, isAdmin, loginAdmin, logoutAdmin } = useAuth();
   
   const [activeTab, setActiveTab] = useState('customer'); // 'customer' or 'admin'
   const [phone, setPhone] = useState('');
@@ -11,46 +11,84 @@ export default function AuthModal({ isOpen, onClose, onAdminSuccess }) {
   const [adminEmail, setAdminEmail] = useState('');
   const [adminPass, setAdminPass] = useState('');
   const [adminError, setAdminError] = useState('');
+  
+  // Real OTP State
   const [otpSent, setOtpSent] = useState(false);
   const [otpCode, setOtpCode] = useState('');
+  const [otpError, setOtpError] = useState('');
+  const [maskedPhone, setMaskedPhone] = useState('');
+  const [cooldown, setCooldown] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Cooldown countdown timer
+  useEffect(() => {
+    let timer = null;
+    if (cooldown > 0) {
+      timer = setInterval(() => {
+        setCooldown(prev => Math.max(0, prev - 1));
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [cooldown]);
 
   if (!isOpen) return null;
 
-  const handleCustomerSubmit = (e) => {
+  const handleRequestOtp = async (e) => {
     e.preventDefault();
-    if (!otpSent) {
-      if (phone.length < 10) {
-        alert('Please enter a valid 10-digit mobile number');
-        return;
-      }
+    setOtpError('');
+    setIsSubmitting(true);
+
+    const res = await requestOtp(phone);
+    setIsSubmitting(false);
+
+    if (res.success) {
       setOtpSent(true);
+      setMaskedPhone(res.maskedPhone || phone);
+      setCooldown(res.cooldownSeconds || 60);
     } else {
-      // Complete mock OTP login
-      loginCustomer({
-        name: name.trim() || 'Valued Customer',
-        phone: phone.trim(),
-        email: `${phone}@smartkirana.customer`
-      });
-      setOtpSent(false);
-      onClose();
+      setOtpError(res.message || 'Failed to send OTP.');
+      if (res.cooldownRemaining) {
+        setCooldown(res.cooldownRemaining);
+      }
     }
   };
 
-  const handleAdminSubmit = (e) => {
+  const handleVerifyOtp = async (e) => {
     e.preventDefault();
-    const result = loginAdmin(adminEmail, adminPass);
+    setOtpError('');
+    setIsSubmitting(true);
+
+    const res = await verifyOtp(phone, otpCode, name);
+    setIsSubmitting(false);
+
+    if (res.success) {
+      setOtpSent(false);
+      setOtpCode('');
+      onClose();
+    } else {
+      setOtpError(res.message || 'Invalid OTP entered.');
+    }
+  };
+
+  const handleAdminSubmit = async (e) => {
+    e.preventDefault();
+    setAdminError('');
+    setIsSubmitting(true);
+
+    const result = await loginAdmin(adminEmail, adminPass);
+    setIsSubmitting(false);
+
     if (result.success) {
-      setAdminError('');
       onClose();
       if (onAdminSuccess) onAdminSuccess();
     } else {
-      setAdminError(result.message);
+      setAdminError(result.message || 'Invalid admin credentials');
     }
   };
 
   const handleFillDemoAdmin = () => {
-    setAdminEmail(ADMIN_CREDENTIALS.email);
-    setAdminPass(ADMIN_CREDENTIALS.password);
+    setAdminEmail('admin@smartkirana.store');
+    setAdminPass('kirana2026admin');
   };
 
   return (
@@ -68,7 +106,7 @@ export default function AuthModal({ isOpen, onClose, onAdminSuccess }) {
                 {activeTab === 'customer' ? 'Customer Account' : 'Store Admin Portal'}
               </h3>
               <p className="text-[11px] text-slate-500">
-                {activeTab === 'customer' ? 'Manage orders & delivery addresses' : 'Store inventory & order management'}
+                {activeTab === 'customer' ? 'Secure mobile OTP login' : 'Authorized store management only'}
               </p>
             </div>
           </div>
@@ -83,7 +121,10 @@ export default function AuthModal({ isOpen, onClose, onAdminSuccess }) {
         {/* Tab switch */}
         <div className="flex bg-slate-100 p-1 rounded-2xl my-4 text-xs font-semibold">
           <button
-            onClick={() => setActiveTab('customer')}
+            onClick={() => {
+              setActiveTab('customer');
+              setOtpError('');
+            }}
             className={`flex-1 py-2 rounded-xl transition-all ${
               activeTab === 'customer' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'
             }`}
@@ -91,7 +132,10 @@ export default function AuthModal({ isOpen, onClose, onAdminSuccess }) {
             Customer Login
           </button>
           <button
-            onClick={() => setActiveTab('admin')}
+            onClick={() => {
+              setActiveTab('admin');
+              setAdminError('');
+            }}
             className={`flex-1 py-2 rounded-xl transition-all ${
               activeTab === 'admin' ? 'bg-white text-amber-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'
             }`}
@@ -110,7 +154,6 @@ export default function AuthModal({ isOpen, onClose, onAdminSuccess }) {
                 <div>
                   <h4 className="font-extrabold text-slate-900 text-lg">{customer.name || 'Smart Kirana Shopper'}</h4>
                   <p className="text-xs text-slate-500 mt-0.5">+91 {customer.phone}</p>
-                  <p className="text-xs text-slate-400">{customer.email}</p>
                 </div>
 
                 <div className="pt-4 border-t border-slate-100 flex gap-2">
@@ -131,10 +174,11 @@ export default function AuthModal({ isOpen, onClose, onAdminSuccess }) {
                   </button>
                 </div>
               </div>
-            ) : (
-              <form onSubmit={handleCustomerSubmit} className="space-y-3.5">
+            ) : !otpSent ? (
+              /* Step 1: Phone Input & Send OTP */
+              <form onSubmit={handleRequestOtp} className="space-y-3.5">
                 <div>
-                  <label className="text-xs font-bold text-slate-700">Your Full Name</label>
+                  <label className="text-xs font-bold text-slate-700">Full Name</label>
                   <input
                     type="text"
                     required
@@ -163,28 +207,88 @@ export default function AuthModal({ isOpen, onClose, onAdminSuccess }) {
                   </div>
                 </div>
 
-                {otpSent && (
-                  <div className="p-3 bg-kirana-50 border border-kirana-200 rounded-xl space-y-2">
-                    <p className="text-[11px] text-kirana-800 font-medium">
-                      Demo OTP sent! Enter <strong>1234</strong> to verify:
-                    </p>
-                    <input
-                      type="text"
-                      maxLength={6}
-                      value={otpCode}
-                      onChange={e => setOtpCode(e.target.value)}
-                      placeholder="Enter OTP (e.g. 1234)"
-                      className="w-full px-3 py-2 text-xs bg-white border border-kirana-300 rounded-lg font-mono text-center tracking-widest text-kirana-950 font-bold"
-                    />
+                {otpError && (
+                  <div className="p-2.5 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                    <span>{otpError}</span>
                   </div>
                 )}
 
                 <button
                   type="submit"
-                  className="w-full mt-4 py-3 bg-kirana-600 hover:bg-kirana-700 text-white font-bold text-xs sm:text-sm rounded-2xl shadow-md transition-all flex items-center justify-center gap-2"
+                  disabled={isSubmitting || phone.length < 10}
+                  className="w-full mt-4 py-3 bg-kirana-600 hover:bg-kirana-700 disabled:opacity-50 text-white font-bold text-xs sm:text-sm rounded-2xl shadow-md transition-all flex items-center justify-center gap-2"
                 >
-                  <span>{otpSent ? 'Verify & Continue' : 'Send OTP to Login'}</span>
+                  <span>{isSubmitting ? 'Sending...' : 'Send OTP via SMS'}</span>
                   <ArrowRight className="w-4 h-4" />
+                </button>
+              </form>
+            ) : (
+              /* Step 2: Real OTP Verification */
+              <form onSubmit={handleVerifyOtp} className="space-y-3.5">
+                <div className="p-3 bg-kirana-50 border border-kirana-200 rounded-xl text-xs text-kirana-900">
+                  <p className="font-semibold">
+                    Verification code sent to <strong>+91 {maskedPhone}</strong>
+                  </p>
+                  <p className="text-[11px] text-kirana-700 mt-0.5">
+                    Enter the 6-digit cryptographic security code. Valid for 5 minutes.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700">Enter 6-Digit OTP</label>
+                  <input
+                    type="text"
+                    required
+                    maxLength={6}
+                    value={otpCode}
+                    onChange={e => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                    placeholder="••••••"
+                    className="w-full mt-1 px-3.5 py-3 text-base text-center tracking-widest bg-slate-50 border border-slate-200 rounded-xl font-mono font-black focus:bg-white focus:ring-2 focus:ring-kirana-500"
+                  />
+                </div>
+
+                {otpError && (
+                  <div className="p-2.5 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                    <span>{otpError}</span>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between text-xs pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOtpSent(false);
+                      setOtpError('');
+                    }}
+                    className="text-slate-500 hover:text-slate-700 underline"
+                  >
+                    Change Number
+                  </button>
+
+                  {cooldown > 0 ? (
+                    <span className="text-slate-400 flex items-center gap-1 font-mono">
+                      <Clock className="w-3.5 h-3.5" /> Resend in {cooldown}s
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleRequestOtp}
+                      className="text-kirana-600 font-bold hover:underline"
+                    >
+                      Resend Code
+                    </button>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting || otpCode.length !== 6}
+                  className="w-full mt-3 py-3 bg-kirana-600 hover:bg-kirana-700 disabled:opacity-50 text-white font-bold text-xs sm:text-sm rounded-2xl shadow-md transition-all flex items-center justify-center gap-2"
+                >
+                  <span>{isSubmitting ? 'Verifying...' : 'Verify & Continue'}</span>
+                  <CheckCircle2 className="w-4 h-4" />
                 </button>
               </form>
             )}
@@ -199,7 +303,7 @@ export default function AuthModal({ isOpen, onClose, onAdminSuccess }) {
                 </div>
                 <div>
                   <h4 className="font-extrabold text-slate-900 text-base">Store Administrator Active</h4>
-                  <p className="text-xs text-slate-500 mt-1">You have full inventory and order control access.</p>
+                  <p className="text-xs text-slate-500 mt-1">Authenticated with secure PBKDF2 credentials.</p>
                 </div>
                 <div className="flex gap-2 pt-2">
                   <button
@@ -222,7 +326,7 @@ export default function AuthModal({ isOpen, onClose, onAdminSuccess }) {
             ) : (
               <form onSubmit={handleAdminSubmit} className="space-y-3.5">
                 <div className="p-3 bg-amber-50 rounded-2xl border border-amber-200/60 text-xs text-amber-900">
-                  <p className="font-bold">Admin Credentials for Demo:</p>
+                  <p className="font-bold">Store Admin Access:</p>
                   <p className="font-mono text-[11px] text-amber-800 mt-1">
                     Email: admin@smartkirana.store<br />
                     Password: kirana2026admin
@@ -261,15 +365,19 @@ export default function AuthModal({ isOpen, onClose, onAdminSuccess }) {
                 </div>
 
                 {adminError && (
-                  <p className="text-xs font-semibold text-rose-600">{adminError}</p>
+                  <div className="p-2.5 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                    <span>{adminError}</span>
+                  </div>
                 )}
 
                 <button
                   type="submit"
+                  disabled={isSubmitting}
                   className="w-full mt-4 py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs sm:text-sm rounded-2xl shadow-md transition-all flex items-center justify-center gap-2"
                 >
                   <ShieldCheck className="w-4 h-4" />
-                  <span>Enter Store Admin Dashboard</span>
+                  <span>{isSubmitting ? 'Verifying Credentials...' : 'Authenticate as Administrator'}</span>
                 </button>
               </form>
             )}

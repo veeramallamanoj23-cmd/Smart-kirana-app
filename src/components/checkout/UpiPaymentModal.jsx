@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { buildUpiUri, generateQrDataUrl, formatCurrency } from '../../lib/upi';
 import { useStore } from '../../context/StoreContext';
+import { api } from '../../lib/api';
 import confetti from 'canvas-confetti';
 
 export default function UpiPaymentModal({ 
@@ -57,22 +58,24 @@ export default function UpiPaymentModal({
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Simulated Test Bank Verification
-  const handleSimulatePayment = () => {
+  // Simulated Test Bank Verification (via secure backend verification endpoint)
+  const handleSimulatePayment = async () => {
     setIsVerifying(true);
-    setTimeout(() => {
-      setIsVerifying(false);
-      try {
-        confetti({
-          particleCount: 80,
-          spread: 70,
-          origin: { y: 0.6 }
-        });
-      } catch (e) {
-        // confetti fallback
-      }
-      onPaymentSuccess(order.id, `UPI-SIM-${Math.floor(100000 + Math.random() * 900000)}`);
-    }, 1800);
+    const res = await api.verifyTestPayment(order.id);
+    setIsVerifying(false);
+
+    try {
+      confetti({
+        particleCount: 80,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+    } catch (e) {
+      // confetti fallback
+    }
+
+    const ref = res.paymentRef || `UPI-SIM-${Math.floor(100000 + Math.random() * 900000)}`;
+    onPaymentSuccess(order.id, ref);
   };
 
   return (

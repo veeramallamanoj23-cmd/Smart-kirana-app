@@ -19,6 +19,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useStore } from '../../context/StoreContext';
 import { useOrders } from '../../context/OrderContext';
 import { formatCurrency } from '../../lib/upi';
+import { api } from '../../lib/api';
 import UpiPaymentModal from './UpiPaymentModal';
 
 export default function CheckoutPage({ onBackToShopping, onOrderComplete }) {
@@ -74,7 +75,7 @@ export default function CheckoutPage({ onBackToShopping, onOrderComplete }) {
 
   const isCurrentPinValid = isPincodeServiceable(formData.pincode);
 
-  const handleSubmitOrder = (e) => {
+  const handleSubmitOrder = async (e) => {
     e.preventDefault();
 
     if (!formData.name.trim() || formData.phone.length < 10) {
@@ -88,7 +89,9 @@ export default function CheckoutPage({ onBackToShopping, onOrderComplete }) {
     }
 
     setIsSubmitting(true);
+    setPincodeError('');
 
+    const idempotencyKey = `idem_${formData.phone}_${Date.now()}`;
     const orderPayload = {
       customer: {
         name: formData.name.trim(),
@@ -111,32 +114,31 @@ export default function CheckoutPage({ onBackToShopping, onOrderComplete }) {
         quantity: item.quantity,
         image: item.image
       })),
-      bill: {
-        subtotal,
-        deliveryFee,
-        handlingFee,
-        discount: couponDiscount,
-        total: finalPayable
-      },
+      couponCode: appliedCoupon?.code || null,
       paymentMethod: formData.paymentMethod,
-      paymentStatus: formData.paymentMethod === 'cod' ? 'pending' : 'pending',
       deliverySlot: formData.deliverySlot,
       instructions: formData.instructions
     };
 
-    const newOrder = createOrder(orderPayload);
+    // Submit to server for authoritative calculation & stock validation
+    const serverRes = await api.checkout(orderPayload, idempotencyKey);
+    setIsSubmitting(false);
+
+    if (!serverRes.success) {
+      setPincodeError(serverRes.message || 'Order could not be accepted by server.');
+      alert(`Order Failed: ${serverRes.message || 'Security check failed'}`);
+      return;
+    }
+
+    const newOrder = serverRes.order || createOrder(orderPayload);
     setCreatedOrder(newOrder);
 
     if (formData.paymentMethod === 'upi_qr') {
-      setIsSubmitting(false);
       setShowUpiModal(true);
     } else {
       // Cash on Delivery
-      setTimeout(() => {
-        setIsSubmitting(false);
-        clearCart();
-        onOrderComplete(newOrder.id);
-      }, 800);
+      clearCart();
+      onOrderComplete(newOrder.id);
     }
   };
 

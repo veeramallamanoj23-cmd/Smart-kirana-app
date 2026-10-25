@@ -1,15 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { storage } from '../lib/storage';
+import { api } from '../lib/api';
 
 const AuthContext = createContext();
 
-export const ADMIN_CREDENTIALS = {
-  email: 'admin@smartkirana.store',
-  password: 'kirana2026admin'
-};
-
 const DEFAULT_CUSTOMER = {
-  id: 'cust-guest-1',
+  id: 'cust_default',
   name: 'Rohan Sharma',
   phone: '9876543210',
   email: 'rohan.sharma@example.com',
@@ -50,7 +46,9 @@ export function AuthProvider({ children }) {
   });
 
   const [isAdmin, setIsAdmin] = useState(() => {
-    return storage.get('isAdmin', false);
+    const role = localStorage.getItem('smart_kirana_user_role');
+    const token = localStorage.getItem('smart_kirana_auth_token');
+    return Boolean(token && role === 'admin');
   });
 
   const [selectedAddress, setSelectedAddress] = useState(() => {
@@ -65,26 +63,40 @@ export function AuthProvider({ children }) {
   }, [customer]);
 
   useEffect(() => {
-    storage.set('isAdmin', isAdmin);
-  }, [isAdmin]);
-
-  useEffect(() => {
     storage.set('selectedAddress', selectedAddress);
   }, [selectedAddress]);
 
-  const loginCustomer = (details) => {
-    const updated = {
-      ...customer,
-      ...details,
-      isLoggedIn: true
-    };
-    setCustomer(updated);
-    return true;
+  // Request real cryptographic OTP
+  const requestOtp = async (phone) => {
+    const res = await api.requestOtp(phone);
+    return res;
+  };
+
+  // Verify OTP against server
+  const verifyOtp = async (phone, enteredOtp, name) => {
+    const res = await api.verifyOtp(phone, enteredOtp, name);
+    if (res.success && res.token) {
+      localStorage.setItem('smart_kirana_auth_token', res.token);
+      localStorage.setItem('smart_kirana_user_role', 'customer');
+
+      const updated = {
+        ...customer,
+        id: res.customer.id,
+        name: res.customer.name,
+        phone: res.customer.phone,
+        email: `${res.customer.phone}@smartkirana.customer`,
+        isLoggedIn: true
+      };
+      setCustomer(updated);
+    }
+    return res;
   };
 
   const logoutCustomer = () => {
+    localStorage.removeItem('smart_kirana_auth_token');
+    localStorage.removeItem('smart_kirana_user_role');
     setCustomer({
-      id: `cust-${Date.now()}`,
+      id: `cust_${Date.now()}`,
       name: '',
       phone: '',
       email: '',
@@ -130,16 +142,21 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const loginAdmin = (email, password) => {
-    if (email.trim().toLowerCase() === ADMIN_CREDENTIALS.email.toLowerCase() && 
-        password === ADMIN_CREDENTIALS.password) {
+  // Authenticate Admin against server PBKDF2 hash
+  const loginAdmin = async (email, password) => {
+    const res = await api.adminLogin(email, password);
+    if (res.success && res.token) {
+      localStorage.setItem('smart_kirana_auth_token', res.token);
+      localStorage.setItem('smart_kirana_user_role', 'admin');
       setIsAdmin(true);
       return { success: true };
     }
-    return { success: false, message: 'Invalid admin credentials' };
+    return { success: false, message: res.message || 'Invalid admin credentials' };
   };
 
   const logoutAdmin = () => {
+    localStorage.removeItem('smart_kirana_auth_token');
+    localStorage.removeItem('smart_kirana_user_role');
     setIsAdmin(false);
   };
 
@@ -149,7 +166,8 @@ export function AuthProvider({ children }) {
       isAdmin,
       selectedAddress,
       setSelectedAddress,
-      loginCustomer,
+      requestOtp,
+      verifyOtp,
       logoutCustomer,
       addAddress,
       removeAddress,

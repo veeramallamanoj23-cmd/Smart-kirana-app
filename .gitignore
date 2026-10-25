@@ -7,8 +7,14 @@ node_modules/
 dist/
 build/
 
-# Portable tools
+# Portable tools & backups
 .tools/
+backup_pre_security/
+*.zip
+
+# Logs
+server/logs/
+*.log
 
 # Environment variables
 .env
