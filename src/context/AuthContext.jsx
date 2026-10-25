@@ -4,45 +4,24 @@ import { api } from '../lib/api';
 
 const AuthContext = createContext();
 
-const DEFAULT_CUSTOMER = {
-  id: 'cust_default',
-  name: 'Rohan Sharma',
-  phone: '9876543210',
-  email: 'rohan.sharma@example.com',
-  isLoggedIn: true,
-  addresses: [
-    {
-      id: 'addr-1',
-      title: 'Home',
-      fullName: 'Rohan Sharma',
-      phone: '9876543210',
-      flat: 'Flat 402, Sunshine Heights',
-      street: '14th Main, 4th Sector, HSR Layout',
-      landmark: 'Near BDA Complex',
-      city: 'Bangalore',
-      state: 'Karnataka',
-      pincode: '560102',
-      isDefault: true
-    },
-    {
-      id: 'addr-2',
-      title: 'Office',
-      fullName: 'Rohan Sharma',
-      phone: '9876543210',
-      flat: '3rd Floor, Tech Park Wing B',
-      street: 'Koramangala 5th Block',
-      landmark: 'Opposite Jyoti Nivas College',
-      city: 'Bangalore',
-      state: 'Karnataka',
-      pincode: '560034',
-      isDefault: false
-    }
-  ]
+const GUEST_CUSTOMER = {
+  id: null,
+  name: '',
+  phone: '',
+  email: '',
+  isLoggedIn: false,
+  addresses: []
 };
 
 export function AuthProvider({ children }) {
   const [customer, setCustomer] = useState(() => {
-    return storage.get('customer', DEFAULT_CUSTOMER);
+    const saved = storage.get('customer', GUEST_CUSTOMER);
+    // Purge legacy mock account if stored in localStorage
+    if (saved && (saved.id === 'cust_default' || saved.name === 'Rohan Sharma')) {
+      storage.set('customer', GUEST_CUSTOMER);
+      return GUEST_CUSTOMER;
+    }
+    return saved || GUEST_CUSTOMER;
   });
 
   const [isAdmin, setIsAdmin] = useState(() => {

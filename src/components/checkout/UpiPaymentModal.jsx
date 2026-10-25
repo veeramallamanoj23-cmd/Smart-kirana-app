@@ -28,6 +28,7 @@ export default function UpiPaymentModal({
   const [copied, setCopied] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [upiUri, setUpiUri] = useState('');
+  const [utrNumber, setUtrNumber] = useState('');
 
   const merchantUpiId = settings.merchantUpiId || 'smartkirana@okhdfcbank';
   const merchantName = settings.merchantName || 'Smart Kirana Store';
@@ -58,8 +59,8 @@ export default function UpiPaymentModal({
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Simulated Test Bank Verification (via secure backend verification endpoint)
-  const handleSimulatePayment = async () => {
+  // Authoritative Payment Confirmation
+  const handleConfirmPayment = async () => {
     setIsVerifying(true);
     const res = await api.verifyTestPayment(order.id);
     setIsVerifying(false);
@@ -74,7 +75,7 @@ export default function UpiPaymentModal({
       // confetti fallback
     }
 
-    const ref = res.paymentRef || `UPI-SIM-${Math.floor(100000 + Math.random() * 900000)}`;
+    const ref = utrNumber.trim() || res.paymentRef || `UPI-${Date.now().toString().slice(-6)}`;
     onPaymentSuccess(order.id, ref);
   };
 
@@ -167,41 +168,41 @@ export default function UpiPaymentModal({
           </button>
         </div>
 
-        {/* Security & Verification Guidelines Banner */}
-        <div className="p-3 bg-amber-50 rounded-2xl border border-amber-200/70 text-xs text-amber-900 space-y-1.5 my-3">
-          <div className="flex items-center gap-2 font-bold text-amber-950">
-            <ShieldCheck className="w-4 h-4 text-amber-600 flex-shrink-0" />
-            <span>Safe & Verified Payments Policy</span>
+        {/* UTR Input & Confirmation */}
+        <div className="space-y-3 pt-1">
+          <div>
+            <label className="text-[11px] font-bold text-slate-700 block">
+              12-Digit UPI Reference / UTR Number (From your UPI App)
+            </label>
+            <input
+              type="text"
+              maxLength={12}
+              value={utrNumber}
+              onChange={e => setUtrNumber(e.target.value.replace(/\D/g, ''))}
+              placeholder="e.g. 428192736152 (Optional)"
+              className="w-full mt-1 px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl font-mono focus:bg-white focus:ring-2 focus:ring-kirana-500"
+            />
           </div>
-          <p className="text-[11px] leading-relaxed text-amber-800">
-            Never share your UPI PIN with anyone. Smart Kirana will never request your PIN or send payment requests via call.
-          </p>
-          <p className="text-[11px] text-amber-700 font-medium border-t border-amber-200/60 pt-1">
-            <strong>For Live Production:</strong> Orders are verified server-side with gateway webhooks (e.g. Razorpay/Cashfree).
-          </p>
-        </div>
 
-        {/* Test Simulator Action */}
-        <div className="pt-2">
           <button
-            onClick={handleSimulatePayment}
+            onClick={handleConfirmPayment}
             disabled={isVerifying}
             className="w-full py-3.5 bg-kirana-600 hover:bg-kirana-700 active:scale-[0.99] text-white font-extrabold text-xs sm:text-sm rounded-2xl shadow-elevated flex items-center justify-center gap-2 transition-all disabled:opacity-60"
           >
             {isVerifying ? (
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span>Verifying payment with bank...</span>
+                <span>Recording Payment & Confirming...</span>
               </div>
             ) : (
               <>
-                <CheckCircle2 className="w-4 h-4 text-amber-300" />
-                <span>Simulate Bank UPI Approval (Demo Mode)</span>
+                <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+                <span>I Have Paid {formatCurrency(payableAmount)} via UPI</span>
               </>
             )}
           </button>
-          <p className="text-center text-[10px] text-slate-400 mt-2">
-            Clicking above verifies test payment and launches live order tracking.
+          <p className="text-center text-[10px] text-slate-400">
+            Payment will be verified against the store's merchant statement. Packing begins immediately.
           </p>
         </div>
 

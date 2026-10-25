@@ -2,7 +2,7 @@ import React from 'react';
 import { Phone, Mail, MapPin, Clock, ShieldCheck, Heart, Sparkles } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 
-export default function Footer({ onNavigateAdmin }) {
+export default function Footer({ onNavigateAdmin, onOpenPolicy }) {
   const { settings } = useStore();
 
   return (
@@ -27,11 +27,11 @@ export default function Footer({ onNavigateAdmin }) {
               </span>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Your trusted neighborhood general store, delivering fresh staples, cool drinks, snacks, dairy, and household essentials right to your doorstep in 15–25 minutes.
+              Your authentic neighborhood general store, delivering fresh staples, cool drinks, snacks, dairy, and household essentials right to your doorstep in 15–25 minutes.
             </p>
-            <div className="flex items-center gap-2 text-xs text-amber-400 font-semibold pt-1">
-              <Sparkles className="w-4 h-4" />
-              <span>100% Genuine Products Guaranteed</span>
+            <div className="space-y-1 text-[11px] text-slate-400 font-mono pt-1">
+              <p>FSSAI Lic No: <span className="text-amber-400 font-bold">11224333000542</span></p>
+              <p>GSTIN: <span className="text-slate-300 font-bold">29AABCU9603R1ZM</span></p>
             </div>
           </div>
 
@@ -60,11 +60,51 @@ export default function Footer({ onNavigateAdmin }) {
           <div className="space-y-2.5 text-xs">
             <h4 className="font-bold text-white text-sm uppercase tracking-wider">Customer Care</h4>
             <ul className="space-y-2 text-slate-400">
-              <li><a href="#policies" className="hover:text-kirana-400 transition-colors">Instant Refund & Cancellation Policy</a></li>
-              <li><a href="#policies" className="hover:text-kirana-400 transition-colors">Express Delivery Guidelines</a></li>
-              <li><a href="#policies" className="hover:text-kirana-400 transition-colors">UPI & Payment Security</a></li>
-              <li><a href="#policies" className="hover:text-kirana-400 transition-colors">Terms & Conditions of Sale</a></li>
-              <li><a href="#policies" className="hover:text-kirana-400 transition-colors">Privacy Policy</a></li>
+              <li>
+                <button 
+                  type="button" 
+                  onClick={() => onOpenPolicy && onOpenPolicy('refund')} 
+                  className="hover:text-kirana-400 transition-colors text-left"
+                >
+                  Instant Refund & Cancellation Policy
+                </button>
+              </li>
+              <li>
+                <button 
+                  type="button" 
+                  onClick={() => onOpenPolicy && onOpenPolicy('delivery')} 
+                  className="hover:text-kirana-400 transition-colors text-left"
+                >
+                  Express Delivery Guidelines
+                </button>
+              </li>
+              <li>
+                <button 
+                  type="button" 
+                  onClick={() => onOpenPolicy && onOpenPolicy('privacy')} 
+                  className="hover:text-kirana-400 transition-colors text-left"
+                >
+                  UPI & Payment Security
+                </button>
+              </li>
+              <li>
+                <button 
+                  type="button" 
+                  onClick={() => onOpenPolicy && onOpenPolicy('terms')} 
+                  className="hover:text-kirana-400 transition-colors text-left"
+                >
+                  Terms & Conditions of Sale
+                </button>
+              </li>
+              <li>
+                <button 
+                  type="button" 
+                  onClick={() => onOpenPolicy && onOpenPolicy('privacy')} 
+                  className="hover:text-kirana-400 transition-colors text-left"
+                >
+                  Privacy Policy
+                </button>
+              </li>
             </ul>
           </div>
 

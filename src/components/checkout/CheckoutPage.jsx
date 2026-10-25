@@ -40,22 +40,62 @@ export default function CheckoutPage({ onBackToShopping, onOrderComplete }) {
 
   // Form State
   const [formData, setFormData] = useState({
-    name: customer?.name || 'Rohan Sharma',
-    phone: customer?.phone || '9876543210',
-    flat: selectedAddress?.flat || 'Flat 402, Sunshine Heights',
-    street: selectedAddress?.street || '14th Main, 4th Sector, HSR Layout',
-    landmark: selectedAddress?.landmark || 'Near BDA Complex',
+    name: customer?.name || '',
+    phone: customer?.phone || '',
+    flat: selectedAddress?.flat || '',
+    street: selectedAddress?.street || '',
+    landmark: selectedAddress?.landmark || '',
     city: 'Bangalore',
-    pincode: selectedAddress?.pincode || '560102',
-    instructions: 'Please ring bell once and leave bag at door',
+    pincode: selectedAddress?.pincode || (settings?.serviceablePincodes?.[0] || '560034'),
+    instructions: '',
     deliverySlot: 'Express (15-25 Mins)',
     paymentMethod: 'upi_qr' // 'upi_qr' or 'cod'
   });
 
   const [pincodeError, setPincodeError] = useState('');
+  const [geoStatus, setGeoStatus] = useState('');
+  const [isLocating, setIsLocating] = useState(false);
   const [showUpiModal, setShowUpiModal] = useState(false);
   const [createdOrder, setCreatedOrder] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // GPS Browser Geolocation Auto-Detection
+  const handleDetectLocation = () => {
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser.');
+      return;
+    }
+    setIsLocating(true);
+    setGeoStatus('');
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setIsLocating(false);
+        const { latitude, longitude } = pos.coords;
+        const storeLat = settings?.latitude || 12.9352;
+        const storeLon = settings?.longitude || 77.6245;
+        const R = 6371; // Earth radius in km
+        const dLat = (latitude - storeLat) * Math.PI / 180;
+        const dLon = (longitude - storeLon) * Math.PI / 180;
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                  Math.cos(storeLat * Math.PI / 180) * Math.cos(latitude * Math.PI / 180) *
+                  Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const distKm = R * c;
+
+        if (distKm <= (settings?.maxDeliveryRadiusKm || 10.0)) {
+          setGeoStatus(`Location confirmed: You are ${distKm.toFixed(1)} km from store — Express delivery is active!`);
+          setPincodeError('');
+        } else {
+          setGeoStatus(`Notice: You are ${distKm.toFixed(1)} km away. Store maximum delivery radius is ${settings?.maxDeliveryRadiusKm || 10} km.`);
+        }
+      },
+      (err) => {
+        setIsLocating(false);
+        setGeoStatus('Location permission denied or unavailable. Please enter PIN code manually.');
+      },
+      { timeout: 8000 }
+    );
+  };
 
   // Validate PIN code on change
   const handlePincodeChange = (e) => {
@@ -197,7 +237,7 @@ export default function CheckoutPage({ onBackToShopping, onOrderComplete }) {
           <div className="bg-white rounded-3xl border border-slate-100 p-5 sm:p-6 shadow-sm space-y-4">
             <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
               <User className="w-4 h-4 text-kirana-600" />
-              <span>1. Customer Information</span>
+              <span>1. Customer Contact Details</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -208,13 +248,13 @@ export default function CheckoutPage({ onBackToShopping, onOrderComplete }) {
                   required
                   value={formData.name}
                   onChange={e => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="e.g. Rohan Sharma"
-                  className="w-full mt-1 px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-kirana-500"
+                  placeholder="Enter your full name"
+                  className="w-full mt-1 px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-kirana-500 font-medium"
                 />
               </div>
 
               <div>
-                <label className="text-[11px] font-bold text-slate-600">Mobile Number *</label>
+                <label className="text-[11px] font-bold text-slate-600">Mobile Number (For Delivery OTP & Updates) *</label>
                 <div className="relative mt-1">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
                     +91
@@ -225,8 +265,8 @@ export default function CheckoutPage({ onBackToShopping, onOrderComplete }) {
                     maxLength={10}
                     value={formData.phone}
                     onChange={e => setFormData({ ...formData, phone: e.target.value.replace(/\D/g, '') })}
-                    placeholder="9876543210"
-                    className="w-full pl-12 pr-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-kirana-500 font-medium"
+                    placeholder="10-digit mobile number"
+                    className="w-full pl-12 pr-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-kirana-500 font-medium font-mono"
                   />
                 </div>
               </div>
@@ -235,37 +275,49 @@ export default function CheckoutPage({ onBackToShopping, onOrderComplete }) {
 
           {/* 2. Delivery Address & PIN Code Verification */}
           <div className="bg-white rounded-3xl border border-slate-100 p-5 sm:p-6 shadow-sm space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
                 <MapPin className="w-4 h-4 text-kirana-600" />
-                <span>2. Delivery Address</span>
+                <span>2. Delivery Address (Within 10 km Store Radius)</span>
               </div>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isCurrentPinValid ? 'bg-kirana-100 text-kirana-800' : 'bg-red-100 text-red-800'}`}>
-                {isCurrentPinValid ? '✓ In Service Area' : '⚠ Out of Service Area'}
-              </span>
+              <button
+                type="button"
+                onClick={handleDetectLocation}
+                disabled={isLocating}
+                className="self-start sm:self-auto flex items-center gap-1.5 px-3 py-1.5 bg-kirana-50 hover:bg-kirana-100 text-kirana-700 text-[11px] font-bold rounded-xl border border-kirana-200 transition-colors"
+              >
+                <span>{isLocating ? 'Detecting GPS...' : '📍 Auto-Detect Location (GPS)'}</span>
+              </button>
             </div>
 
+            {geoStatus && (
+              <div className="p-2.5 bg-blue-50 border border-blue-200 text-blue-900 rounded-xl text-xs flex items-center gap-2">
+                <MapPin className="w-3.5 h-3.5 flex-shrink-0 text-blue-600" />
+                <span>{geoStatus}</span>
+              </div>
+            )}
+
             <div>
-              <label className="text-[11px] font-bold text-slate-600">Flat / House No. / Apartment *</label>
+              <label className="text-[11px] font-bold text-slate-600">Flat / House No. / Building Name *</label>
               <input
                 type="text"
                 required
                 value={formData.flat}
                 onChange={e => setFormData({ ...formData, flat: e.target.value })}
-                placeholder="e.g. Flat 402, Sunshine Heights"
-                className="w-full mt-1 px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-kirana-500"
+                placeholder="e.g. Flat 302, Green Valley Apartments"
+                className="w-full mt-1 px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-kirana-500 font-medium"
               />
             </div>
 
             <div>
-              <label className="text-[11px] font-bold text-slate-600">Street / Colony / Sector *</label>
+              <label className="text-[11px] font-bold text-slate-600">Street / Area / Colony *</label>
               <input
                 type="text"
                 required
                 value={formData.street}
                 onChange={e => setFormData({ ...formData, street: e.target.value })}
-                placeholder="e.g. 14th Main, 4th Sector, HSR Layout"
-                className="w-full mt-1 px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-kirana-500"
+                placeholder="e.g. 5th Main Road, Sector 3"
+                className="w-full mt-1 px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-kirana-500 font-medium"
               />
             </div>
 
@@ -276,7 +328,7 @@ export default function CheckoutPage({ onBackToShopping, onOrderComplete }) {
                   type="text"
                   value={formData.landmark}
                   onChange={e => setFormData({ ...formData, landmark: e.target.value })}
-                  placeholder="e.g. Near BDA Complex"
+                  placeholder="e.g. Near Metro Station / Community Park"
                   className="w-full mt-1 px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-kirana-500"
                 />
               </div>
@@ -289,7 +341,7 @@ export default function CheckoutPage({ onBackToShopping, onOrderComplete }) {
                   maxLength={6}
                   value={formData.pincode}
                   onChange={handlePincodeChange}
-                  placeholder="e.g. 560102"
+                  placeholder="6-digit PIN code"
                   className="w-full mt-1 px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-kirana-500 font-mono font-bold"
                 />
               </div>

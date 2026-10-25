@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="kiranaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="120" fill="url(#kiranaGrad)"/>
+  <!-- Shopping Bag Outline -->
+  <path d="M140 180 L372 180 L340 400 L172 400 Z" fill="none" stroke="#FFFFFF" stroke-width="28" stroke-linejoin="round" stroke-linecap="round"/>
+  <!-- Bag Handle -->
+  <path d="M200 180 C200 110 312 110 312 180" fill="none" stroke="#F59E0B" stroke-width="30" stroke-linecap="round"/>
+  <!-- Wheel Dots -->
+  <circle cx="216" cy="426" r="22" fill="#FFFFFF"/>
+  <circle cx="296" cy="426" r="22" fill="#FFFFFF"/>
+</svg>

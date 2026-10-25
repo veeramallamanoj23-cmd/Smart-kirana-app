@@ -16,6 +16,8 @@ import CheckoutPage from './components/checkout/CheckoutPage';
 import OrderTrackingPage from './components/orders/OrderTrackingPage';
 import OrderHistoryModal from './components/orders/OrderHistoryModal';
 import AdminDashboard from './components/admin/AdminDashboard';
+import PolicyModal from './components/common/PolicyModal';
+import WhatsAppButton from './components/common/WhatsAppButton';
 
 import { useProducts } from './context/ProductContext';
 import { useCart } from './context/CartContext';
@@ -46,6 +48,7 @@ export default function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isOrderHistoryOpen, setIsOrderHistoryOpen] = useState(false);
   const [detailProduct, setDetailProduct] = useState(null);
+  const [policyModal, setPolicyModal] = useState({ isOpen: false, policy: 'terms' });
 
   // Highest catalog price for slider
   const highestPrice = useMemo(() => {
@@ -322,6 +325,7 @@ export default function App() {
             setIsAuthOpen(true);
           }
         }}
+        onOpenPolicy={(policy) => setPolicyModal({ isOpen: true, policy })}
       />
 
       {/* Modals & Slide-out Drawers */}
@@ -371,6 +375,16 @@ export default function App() {
         notification={notification}
         onClose={() => {}}
       />
+
+      {/* Official Legal & Policies Modal */}
+      <PolicyModal
+        isOpen={policyModal.isOpen}
+        initialPolicy={policyModal.policy}
+        onClose={() => setPolicyModal({ isOpen: false, policy: 'terms' })}
+      />
+
+      {/* Floating Store WhatsApp Chat */}
+      <WhatsAppButton />
 
     </div>
   );

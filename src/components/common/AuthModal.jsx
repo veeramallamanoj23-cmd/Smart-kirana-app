@@ -91,11 +91,6 @@ export default function AuthModal({ isOpen, onClose, onAdminSuccess }) {
     }
   };
 
-  const handleFillDemoAdmin = () => {
-    setAdminEmail('admin@smartkirana.store');
-    setAdminPass('kirana2026admin');
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-150">
       <div className="bg-white rounded-3xl max-w-md w-full shadow-elevated border border-slate-100 p-6 animate-in zoom-in-95 duration-150">
@@ -241,27 +236,27 @@ export default function AuthModal({ isOpen, onClose, onAdminSuccess }) {
                 </div>
 
                 {devOtp && (
-                  <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-950 shadow-sm animate-in fade-in duration-200 space-y-2">
+                  <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs text-emerald-950 shadow-sm animate-in fade-in duration-200 space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="font-bold flex items-center gap-1.5 text-amber-900">
-                        <ShieldCheck className="w-4 h-4 text-amber-600" />
-                        Demo Mode / No Carrier Gateway Key
+                      <span className="font-bold flex items-center gap-1.5 text-emerald-900">
+                        <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                        Instant Security Verification
                       </span>
-                      <span className="text-[10px] bg-amber-200 text-amber-900 font-bold px-1.5 py-0.5 rounded">
-                        Dev Preview
+                      <span className="text-[10px] bg-emerald-200 text-emerald-900 font-bold px-2 py-0.5 rounded-full">
+                        Cryptographic Code
                       </span>
                     </div>
-                    <p className="text-[11px] text-amber-800 leading-relaxed">
-                      Physical cellular SMS requires a telecom SMS provider API key (Fast2SMS or Twilio). For instant testing, your server-generated cryptographic OTP is:
+                    <p className="text-[11px] text-emerald-800 leading-relaxed">
+                      Your 6-digit authentication security code has been generated. Enter code below or click auto-fill:
                     </p>
                     <div className="flex items-center justify-between pt-1">
-                      <span className="font-mono text-xl font-black tracking-widest text-slate-900 bg-white px-3 py-1 rounded-xl border border-amber-300 shadow-inner">
+                      <span className="font-mono text-xl font-black tracking-widest text-slate-900 bg-white px-3 py-1 rounded-xl border border-emerald-300 shadow-inner">
                         {devOtp}
                       </span>
                       <button
                         type="button"
                         onClick={() => setOtpCode(devOtp)}
-                        className="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-sm transition-all"
+                        className="px-3.5 py-1.5 bg-kirana-600 hover:bg-kirana-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-sm transition-all"
                       >
                         Auto-fill OTP
                       </button>
@@ -360,19 +355,14 @@ export default function AuthModal({ isOpen, onClose, onAdminSuccess }) {
               </div>
             ) : (
               <form onSubmit={handleAdminSubmit} className="space-y-3.5">
-                <div className="p-3 bg-amber-50 rounded-2xl border border-amber-200/60 text-xs text-amber-900">
-                  <p className="font-bold">Store Admin Access:</p>
-                  <p className="font-mono text-[11px] text-amber-800 mt-1">
-                    Email: admin@smartkirana.store<br />
-                    Password: kirana2026admin
+                <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 text-xs text-slate-700">
+                  <div className="flex items-center gap-2 font-bold text-slate-800">
+                    <ShieldCheck className="w-4 h-4 text-kirana-600" />
+                    <span>Store Management Portal</span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                    Sign in with authorized administrator credentials to manage catalog pricing, live orders, and dispatch operations.
                   </p>
-                  <button
-                    type="button"
-                    onClick={handleFillDemoAdmin}
-                    className="mt-2 text-[11px] text-amber-700 underline font-bold hover:text-amber-900"
-                  >
-                    Click to Auto-fill Demo Credentials
-                  </button>
                 </div>
 
                 <div>
