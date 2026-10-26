@@ -45,9 +45,9 @@ export function AuthProvider({ children }) {
     storage.set('selectedAddress', selectedAddress);
   }, [selectedAddress]);
 
-  // Request real cryptographic OTP
-  const requestOtp = async (phone) => {
-    const res = await api.requestOtp(phone);
+  // Request real cryptographic OTP via SMS or WhatsApp
+  const requestOtp = async (phone, channel = 'sms', countryCode = '91') => {
+    const res = await api.requestOtp(phone, channel, countryCode);
     return res;
   };
 

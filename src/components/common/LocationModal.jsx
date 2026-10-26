@@ -77,8 +77,30 @@ export default function LocationModal({ isOpen, onClose }) {
           </button>
         </div>
 
+        {/* Store Hub & Google Maps Link */}
+        <div className="mt-4 p-3 bg-emerald-50/80 rounded-2xl border border-emerald-200 text-xs text-emerald-950 flex items-center justify-between gap-3">
+          <div className="flex items-start gap-2">
+            <MapPin className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-extrabold text-emerald-950">Dispatched from Store Hub:</p>
+              <p className="text-[11px] text-emerald-800 line-clamp-1">{settings.storeAddress}</p>
+              <p className="text-[10px] text-emerald-700 font-semibold mt-0.5">Strict 10.0 km delivery radius enforced</p>
+            </div>
+          </div>
+          <a
+            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.storeAddress || 'Smart Kirana Bangalore')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-2.5 py-1.5 bg-white hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-[11px] font-bold shadow-xs whitespace-nowrap transition-colors flex items-center gap-1"
+            title="Open Store Location in Google Maps"
+          >
+            <span>Maps</span>
+            <span>↗</span>
+          </a>
+        </div>
+
         {/* Serviceable Pincodes Notice */}
-        <div className="my-4 p-3 bg-amber-50 rounded-2xl border border-amber-200/60 text-xs text-amber-900">
+        <div className="my-3 p-3 bg-amber-50 rounded-2xl border border-amber-200/60 text-xs text-amber-900">
           <div className="flex items-start gap-2">
             <ShieldCheck className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
             <div>

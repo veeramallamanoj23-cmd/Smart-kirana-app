@@ -1,0 +1,21 @@
+# Smart Kirana - Robots Configuration
+# https://smartkirana.store
+
+User-agent: *
+Allow: /
+Allow: /#categories
+Allow: /#featured
+
+# Disallow administrative and private customer endpoints
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /api/
+Disallow: /checkout
+Disallow: /orders
+Disallow: /account
+
+# Crawl-delay for polite scraping
+Crawl-delay: 1
+
+# Sitemap reference
+Sitemap: https://smartkirana.store/sitemap.xml

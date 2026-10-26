@@ -1,4 +1,5 @@
 import { SECURITY_CONFIG } from '../config/security.js';
+import { storeDb } from '../data/storeState.js';
 
 /**
  * Calculate great-circle distance between two points on a sphere using Haversine formula
@@ -34,9 +35,12 @@ function toRad(degrees) {
  * @returns {{ isEligible: boolean, distanceKm: number, reason?: string }}
  */
 export function validateDeliveryRadius(location) {
-  const storeLat = SECURITY_CONFIG.STORE.LATITUDE;
-  const storeLon = SECURITY_CONFIG.STORE.LONGITUDE;
-  const maxRadiusKm = SECURITY_CONFIG.STORE.MAX_DELIVERY_RADIUS_KM;
+  const storeSettings = (storeDb && typeof storeDb.getStoreSettings === 'function') 
+    ? storeDb.getStoreSettings() 
+    : {};
+  const storeLat = Number(storeSettings.storeLat) || SECURITY_CONFIG.STORE.LATITUDE;
+  const storeLon = Number(storeSettings.storeLng) || SECURITY_CONFIG.STORE.LONGITUDE;
+  const maxRadiusKm = Number(storeSettings.maxDeliveryRadiusKm) || SECURITY_CONFIG.STORE.MAX_DELIVERY_RADIUS_KM;
 
   let targetLat = location.lat;
   let targetLon = location.lon;

@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { INITIAL_PRODUCTS } from '../data/products';
 import { CATEGORIES } from '../data/categories';
 import { storage } from '../lib/storage';
+import { api } from '../lib/api';
 
 const ProductContext = createContext();
 
@@ -14,6 +15,17 @@ export function ProductProvider({ children }) {
     return storage.get('categories', CATEGORIES);
   });
 
+  // Sync with server database on mount
+  useEffect(() => {
+    api.getProducts().then(res => {
+      if (res.success && res.products && res.products.length > 0) {
+        setProducts(res.products);
+      }
+    }).catch(err => {
+      console.warn('[PRODUCT_SYNC_WARN] Server fetch failed, using cached store:', err.message);
+    });
+  }, []);
+
   useEffect(() => {
     storage.set('products', products);
   }, [products]);
@@ -22,25 +34,40 @@ export function ProductProvider({ children }) {
     storage.set('categories', categories);
   }, [categories]);
 
-  // Add new product
-  const addProduct = (productData) => {
-    const newProduct = {
+  // Add new product (Persists to server DB and updates live customer catalog)
+  const addProduct = async (productData) => {
+    const tempId = `prod-${Date.now()}`;
+    const payload = {
       ...productData,
-      id: `prod-${Date.now()}`,
+      id: productData.id || tempId,
       rating: 5.0,
       reviewsCount: 1,
       isAvailable: productData.stock > 0
     };
-    setProducts(prev => [newProduct, ...prev]);
-    return newProduct;
+
+    try {
+      const res = await api.adminAddProduct(payload);
+      const saved = (res.success && res.product) ? res.product : payload;
+      setProducts(prev => [saved, ...prev.filter(p => p.id !== saved.id)]);
+      return saved;
+    } catch (err) {
+      console.warn('[ADD_PRODUCT_FALLBACK] Saving to local store:', err.message);
+      setProducts(prev => [payload, ...prev]);
+      return payload;
+    }
   };
 
   // Update existing product
-  const updateProduct = (id, updatedFields) => {
+  const updateProduct = async (id, updatedFields) => {
+    try {
+      await api.adminUpdateProduct(id, updatedFields);
+    } catch (err) {
+      console.warn('[UPDATE_PRODUCT_FALLBACK]:', err.message);
+    }
+
     setProducts(prev => prev.map(item => {
       if (item.id === id) {
         const updated = { ...item, ...updatedFields };
-        // auto-toggle availability if stock changed
         if ('stock' in updatedFields) {
           updated.isAvailable = updated.stock > 0;
         }
@@ -51,33 +78,47 @@ export function ProductProvider({ children }) {
   };
 
   // Delete product
-  const deleteProduct = (id) => {
+  const deleteProduct = async (id) => {
+    try {
+      await api.adminDeleteProduct(id);
+    } catch (err) {
+      console.warn('[DELETE_PRODUCT_FALLBACK]:', err.message);
+    }
     setProducts(prev => prev.filter(item => item.id !== id));
   };
 
   // Quick adjust stock
   const adjustStock = (id, deltaOrTotal, isDelta = true) => {
-    setProducts(prev => prev.map(p => {
-      if (p.id === id) {
-        const newStock = isDelta ? Math.max(0, p.stock + deltaOrTotal) : Math.max(0, deltaOrTotal);
-        return {
-          ...p,
-          stock: newStock,
-          isAvailable: newStock > 0
-        };
-      }
-      return p;
-    }));
+    const target = products.find(p => p.id === id);
+    if (!target) return;
+    const newStock = isDelta ? Math.max(0, target.stock + deltaOrTotal) : Math.max(0, deltaOrTotal);
+    updateProduct(id, { stock: newStock, isAvailable: newStock > 0 });
   };
 
   // Toggle availability switch
   const toggleProductAvailability = (id) => {
-    setProducts(prev => prev.map(p => {
-      if (p.id === id) {
-        return { ...p, isAvailable: !p.isAvailable };
-      }
-      return p;
-    }));
+    const target = products.find(p => p.id === id);
+    if (!target) return;
+    updateProduct(id, { isAvailable: !target.isAvailable });
+  };
+
+  // Category management
+  const addCategory = (categoryData) => {
+    const newCat = {
+      id: categoryData.id || `cat-${Date.now()}`,
+      name: categoryData.name,
+      shortName: categoryData.shortName || categoryData.name,
+      icon: categoryData.icon || '📦',
+      description: categoryData.description || '',
+      badge: categoryData.badge || 'New',
+      color: categoryData.color || 'from-emerald-500/10 to-teal-500/10'
+    };
+    setCategories(prev => [...prev, newCat]);
+    return newCat;
+  };
+
+  const deleteCategory = (catId) => {
+    setCategories(prev => prev.filter(c => c.id !== catId));
   };
 
   // Deduct stock after order placement
@@ -126,6 +167,8 @@ export function ProductProvider({ children }) {
       deleteProduct,
       adjustStock,
       toggleProductAvailability,
+      addCategory,
+      deleteCategory,
       deductStockForOrder,
       restoreStockForOrder,
       resetProducts

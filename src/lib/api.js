@@ -58,9 +58,9 @@ async function request(endpoint, options = {}) {
 
 export const api = {
   // Authentication
-  requestOtp: (phone) => request('/auth/otp/send', {
+  requestOtp: (phone, channel = 'sms', countryCode = '91') => request('/auth/otp/send', {
     method: 'POST',
-    body: JSON.stringify({ phone })
+    body: JSON.stringify({ phone, channel, countryCode })
   }),
 
   verifyOtp: (phone, otp, name) => request('/auth/otp/verify', {
@@ -112,6 +112,11 @@ export const api = {
     body: JSON.stringify(productData)
   }),
 
+  adminUploadImage: (imageData) => request('/admin/upload-image', {
+    method: 'POST',
+    body: JSON.stringify(imageData)
+  }),
+
   adminUpdateProduct: (id, fields) => request(`/admin/products/${id}`, {
     method: 'PUT',
     body: JSON.stringify(fields)
@@ -130,5 +135,18 @@ export const api = {
   adminUpdateSettings: (settings) => request('/admin/settings', {
     method: 'PUT',
     body: JSON.stringify(settings)
+  }),
+
+  // Admin Staff & Password Management
+  adminGetStaff: () => request('/admin/staff'),
+
+  adminCreateStaff: (staffData) => request('/admin/staff', {
+    method: 'POST',
+    body: JSON.stringify(staffData)
+  }),
+
+  adminChangePassword: (newPassword) => request('/admin/change-password', {
+    method: 'PUT',
+    body: JSON.stringify({ newPassword })
   })
 };

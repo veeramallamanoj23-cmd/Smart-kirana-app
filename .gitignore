@@ -33,3 +33,10 @@ server/logs/
 *.sw?
 Thumbs.db
 .DS_Store
+# Ignore all environment files
+.env.*
+!.env.example
+
+# Ignore dependencies and build output
+node_modules/
+dist/

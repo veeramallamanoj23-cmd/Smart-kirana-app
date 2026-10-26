@@ -1,11 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { storage } from '../lib/storage';
 import { useStore } from './StoreContext';
+import { useAuth } from './AuthContext';
 
 const CartContext = createContext();
 
 export function CartProvider({ children }) {
   const { settings } = useStore();
+  const { customer } = useAuth();
+
   const [cartItems, setCartItems] = useState(() => {
     return storage.get('cart', []);
   });
@@ -15,6 +18,7 @@ export function CartProvider({ children }) {
   });
 
   const [notification, setNotification] = useState(null);
+  const [authPrompt, setAuthPrompt] = useState(null);
 
   useEffect(() => {
     storage.set('cart', cartItems);
@@ -61,6 +65,14 @@ export function CartProvider({ children }) {
         return [...prev, { ...product, quantity: quantityToAdd }];
       }
     });
+
+    // Prompt unauthenticated user to log in with mobile OTP (Blinkit style), keeping the cart intact
+    if (!customer?.isLoggedIn) {
+      setAuthPrompt({
+        isOpen: true,
+        message: `Enter your mobile number to continue ordering ${product.name}. Your cart items remain saved!`
+      });
+    }
 
     return true;
   };
@@ -178,7 +190,10 @@ export function CartProvider({ children }) {
       totalSavings,
       finalPayable,
       notification,
-      showNotification
+      showNotification,
+      authPrompt,
+      setAuthPrompt,
+      closeAuthPrompt: () => setAuthPrompt(null)
     }}>
       {children}
     </CartContext.Provider>

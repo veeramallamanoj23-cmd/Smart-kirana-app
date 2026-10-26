@@ -1,11 +1,26 @@
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 import { INITIAL_PRODUCTS } from '../../src/data/products.js';
 import { CATEGORIES } from '../../src/data/categories.js';
 import { INITIAL_STORE_SETTINGS } from '../../src/data/initialStoreSettings.js';
+import { SECURITY_CONFIG } from '../config/security.js';
 import { recordAuditLog } from '../security/auditLogger.js';
 
 const DB_PATH = path.resolve('server/data/db.json');
+
+const DEFAULT_MASTER_ADMINS = [
+  {
+    id: 'admin_master',
+    email: 'admin@smartkirana.store',
+    phone: '9392398990',
+    name: 'Store Owner',
+    role: 'super_admin',
+    salt: SECURITY_CONFIG.ADMIN.SALT,
+    passwordHash: SECURITY_CONFIG.ADMIN.PASSWORD_HASH,
+    createdAt: new Date().toISOString()
+  }
+];
 
 class StoreStateRepository {
   constructor() {
@@ -13,6 +28,7 @@ class StoreStateRepository {
     this.categories = [];
     this.orders = [];
     this.settings = {};
+    this.admins = [];
     this.load();
   }
 
@@ -25,6 +41,7 @@ class StoreStateRepository {
         this.categories = data.categories || [...CATEGORIES];
         this.orders = data.orders || [];
         this.settings = data.settings || { ...INITIAL_STORE_SETTINGS };
+        this.admins = data.admins || [...DEFAULT_MASTER_ADMINS];
         console.log(`[STORE_STATE] Loaded ${this.products.length} products, ${this.orders.length} orders from db.json`);
         return;
       } catch (err) {
@@ -37,6 +54,7 @@ class StoreStateRepository {
     this.categories = [...CATEGORIES];
     this.orders = [];
     this.settings = { ...INITIAL_STORE_SETTINGS };
+    this.admins = [...DEFAULT_MASTER_ADMINS];
     this.save();
   }
 
@@ -47,6 +65,7 @@ class StoreStateRepository {
         categories: this.categories,
         orders: this.orders,
         settings: this.settings,
+        admins: this.admins,
         lastSaved: new Date().toISOString()
       };
       fs.writeFileSync(DB_PATH, JSON.stringify(payload, null, 2), 'utf-8');
@@ -266,6 +285,96 @@ class StoreStateRepository {
     });
 
     return this.settings;
+  }
+
+  // --- Admin Accounts & Staff Management (Strictly Admin Only) ---
+  getAdmins() {
+    return this.admins.map(a => ({
+      id: a.id,
+      email: a.email,
+      phone: a.phone || '',
+      name: a.name || 'Store Staff',
+      role: a.role || 'admin',
+      createdAt: a.createdAt
+    }));
+  }
+
+  findAdminByLogin(identifier) {
+    const clean = String(identifier || '').trim().toLowerCase();
+    const cleanDigits = clean.replace(/\D/g, '');
+    return this.admins.find(a => 
+      a.email.toLowerCase() === clean || 
+      (cleanDigits.length === 10 && a.phone && a.phone.replace(/\D/g, '') === cleanDigits)
+    ) || null;
+  }
+
+  createAdmin({ email, phone = '', name = '', password, role = 'staff_admin' }, creatorEmail = '') {
+    const cleanEmail = String(email || '').trim().toLowerCase();
+    if (!cleanEmail || !password || password.length < 6) {
+      throw new Error('Valid email and password (min 6 chars) required.');
+    }
+
+    if (this.findAdminByLogin(cleanEmail)) {
+      throw new Error('An administrator with this email already exists.');
+    }
+
+    const salt = crypto.randomBytes(16).toString('hex');
+    const passwordHash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
+
+    const newAdmin = {
+      id: `admin_${Date.now()}`,
+      email: cleanEmail,
+      phone: String(phone || '').replace(/\D/g, ''),
+      name: name.trim() || 'Store Staff',
+      role,
+      salt,
+      passwordHash,
+      createdAt: new Date().toISOString(),
+      createdBy: creatorEmail
+    };
+
+    this.admins.push(newAdmin);
+    this.save();
+
+    recordAuditLog({
+      action: 'ADMIN_ACCOUNT_CREATED_BY_ADMIN',
+      actor: 'admin',
+      actorId: creatorEmail,
+      resource: newAdmin.id,
+      details: { newAdminEmail: cleanEmail, role }
+    });
+
+    return {
+      id: newAdmin.id,
+      email: newAdmin.email,
+      phone: newAdmin.phone,
+      name: newAdmin.name,
+      role: newAdmin.role
+    };
+  }
+
+  updateAdminPassword(email, newPassword, actorEmail = '') {
+    const admin = this.findAdminByLogin(email);
+    if (!admin) {
+      throw new Error('Admin account not found.');
+    }
+
+    const salt = crypto.randomBytes(16).toString('hex');
+    const passwordHash = crypto.pbkdf2Sync(newPassword, salt, 10000, 64, 'sha512').toString('hex');
+
+    admin.salt = salt;
+    admin.passwordHash = passwordHash;
+    admin.updatedAt = new Date().toISOString();
+    this.save();
+
+    recordAuditLog({
+      action: 'ADMIN_PASSWORD_CHANGED',
+      actor: 'admin',
+      actorId: actorEmail || email,
+      resource: admin.id
+    });
+
+    return true;
   }
 }
 

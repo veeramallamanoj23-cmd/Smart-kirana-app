@@ -74,7 +74,13 @@ export default function Navbar({
             <span>Delivery in 15-25 mins • Free delivery on orders above ₹{settings.freeDeliveryThreshold}</span>
           </div>
           <div className="hidden sm:flex items-center gap-4 text-[11px] opacity-90">
-            <span>Call / WhatsApp: {settings.phone}</span>
+            <a 
+              href={`tel:${settings.phone || '+919392398990'}`} 
+              className="hover:underline hover:text-amber-200 transition-colors"
+              title="Call Store Helpline"
+            >
+              Helpline: {settings.phone || '+91 9392398990'}
+            </a>
             <span>•</span>
             <span>Hours: {settings.operatingHours}</span>
           </div>
@@ -247,7 +253,7 @@ export default function Navbar({
           {/* Orders Tracking Shortcut */}
           <button
             onClick={onNavigateOrders}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors"
             title="Track recent orders"
           >
             <Package className="w-4 h-4 text-kirana-600" />

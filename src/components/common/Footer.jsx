@@ -40,15 +40,38 @@ export default function Footer({ onNavigateAdmin, onOpenPolicy }) {
             <h4 className="font-bold text-white text-sm uppercase tracking-wider">Store & Support</h4>
             <div className="flex items-start gap-2.5 text-slate-400">
               <MapPin className="w-4 h-4 text-kirana-400 flex-shrink-0 mt-0.5" />
-              <span>{settings.storeAddress}</span>
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.storeAddress || `${settings.storeLat || 12.9352},${settings.storeLng || 77.6245}`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-amber-300 transition-colors leading-relaxed group"
+                title="Click to view store on Google Maps"
+              >
+                <span className="group-hover:underline text-slate-300">{settings.storeAddress}</span>
+                <span className="block text-[11px] text-amber-400 font-semibold mt-0.5">
+                  📍 View on Google Maps ↗
+                </span>
+              </a>
             </div>
             <div className="flex items-center gap-2.5 text-slate-400">
               <Phone className="w-4 h-4 text-kirana-400 flex-shrink-0" />
-              <span>Call / WhatsApp: {settings.phone}</span>
+              <a 
+                href={`tel:${settings.phone || '+919392398990'}`} 
+                className="hover:text-kirana-400 transition-colors font-medium text-slate-300"
+                title="Call Store Owner"
+              >
+                Call: {settings.phone || '+91 9392398990'}
+              </a>
             </div>
             <div className="flex items-center gap-2.5 text-slate-400">
               <Mail className="w-4 h-4 text-kirana-400 flex-shrink-0" />
-              <span>{settings.email}</span>
+              <a 
+                href={`mailto:${settings.email || 'care@smartkirana.store'}`} 
+                className="hover:text-kirana-400 transition-colors font-medium text-slate-300"
+                title="Send Email to Customer Care"
+              >
+                {settings.email || 'care@smartkirana.store'}
+              </a>
             </div>
             <div className="flex items-center gap-2.5 text-slate-400">
               <Clock className="w-4 h-4 text-kirana-400 flex-shrink-0" />

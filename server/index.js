@@ -1,6 +1,9 @@
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
+import path from 'path';
+import fs from 'fs';
+import crypto from 'crypto';
 import { SECURITY_CONFIG } from './config/security.js';
 import { 
   globalLimiter, 
@@ -74,10 +77,13 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'Idempotency-Key', 'x-kirana-signature', 'x-kirana-timestamp']
 }));
 
-// 3. Request Payload Size Limits (Prevents DoS through oversized request bodies)
-app.use(express.json({ limit: '100kb' }));
+// 3. Request Payload Size Limits (Supports up to 10 MB for base64 product image uploads)
+app.use(express.json({ limit: '10mb' }));
 
-// 4. Apply Global API Rate Limiter
+// 4. Static persistent uploads directory
+app.use('/uploads', express.static(path.resolve('server/uploads')));
+
+// 5. Apply Global API Rate Limiter
 app.use('/api/', globalLimiter);
 
 // -----------------------------------------------------------------------------
@@ -110,8 +116,8 @@ app.get('/api/products', (req, res) => {
 // AUTHENTICATION & OTP ENDPOINTS
 // -----------------------------------------------------------------------------
 app.post('/api/auth/otp/send', otpRequestLimiter, async (req, res) => {
-  const { phone } = req.body;
-  const result = await requestCustomerOtp(phone, req.ip);
+  const { phone, channel = 'sms', countryCode = '91' } = req.body;
+  const result = await requestCustomerOtp(phone, req.ip, channel, countryCode);
   res.status(result.status).json(result);
 });
 
@@ -122,8 +128,9 @@ app.post('/api/auth/otp/verify', otpVerifyLimiter, (req, res) => {
 });
 
 app.post('/api/auth/admin/login', adminLoginLimiter, (req, res) => {
-  const { email, password } = req.body;
-  const result = authenticateAdmin(email, password, req.ip);
+  const identifier = req.body.email || req.body.identifier || req.body.login || req.body.phone;
+  const { password } = req.body;
+  const result = authenticateAdmin(identifier, password, req.ip);
   res.status(result.status).json(result);
 });
 
@@ -285,6 +292,88 @@ app.put('/api/admin/orders/:id/status', authenticateJwt, requireAdminRole, (req,
   res.json({ success: true, order });
 });
 
+// Upload Product Photo (Persistent Local Storage / Supabase Storage Compatible)
+app.post('/api/admin/upload-image', authenticateJwt, requireAdminRole, async (req, res) => {
+  try {
+    const { imageBase64, filename, mimeType } = req.body;
+    if (!imageBase64 || typeof imageBase64 !== 'string') {
+      return res.status(400).json({ success: false, message: 'Image data is required.' });
+    }
+
+    let detectedMime = (mimeType || '').toLowerCase();
+    if (!detectedMime && imageBase64.startsWith('data:')) {
+      const match = imageBase64.match(/^data:([^;]+);base64,/);
+      if (match) detectedMime = match[1].toLowerCase();
+    }
+    if (!detectedMime && filename) {
+      const ext = path.extname(filename).toLowerCase();
+      if (ext === '.jpg' || ext === '.jpeg') detectedMime = 'image/jpeg';
+      else if (ext === '.png') detectedMime = 'image/png';
+      else if (ext === '.webp') detectedMime = 'image/webp';
+      else if (ext === '.gif') detectedMime = 'image/gif';
+    }
+
+    const allowedMime = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowedMime.includes(detectedMime)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid image format. Allowed formats: JPEG, PNG, WEBP, GIF.' 
+      });
+    }
+
+    const base64Data = imageBase64.includes(';base64,') 
+      ? imageBase64.split(';base64,')[1] 
+      : imageBase64;
+
+    const buffer = Buffer.from(base64Data, 'base64');
+    const MAX_SIZE = 5 * 1024 * 1024; // 5 MB max
+    if (buffer.length > MAX_SIZE) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Image size exceeds maximum limit of 5 MB.' 
+      });
+    }
+
+    const extMap = {
+      'image/jpeg': 'jpg',
+      'image/png': 'png',
+      'image/webp': 'webp',
+      'image/gif': 'gif'
+    };
+    const ext = extMap[detectedMime] || 'jpg';
+    const safeFilename = `prod_${Date.now()}_${crypto.randomBytes(4).toString('hex')}.${ext}`;
+    const uploadDir = path.resolve('server/uploads/products');
+
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+
+    const filePath = path.join(uploadDir, safeFilename);
+    fs.writeFileSync(filePath, buffer);
+
+    const publicUrl = `/uploads/products/${safeFilename}`;
+
+    recordAuditLog({
+      action: 'ADMIN_PRODUCT_IMAGE_UPLOADED',
+      actor: 'admin',
+      actorId: req.user.email,
+      resource: safeFilename,
+      details: { sizeBytes: buffer.length, mimeType: detectedMime }
+    });
+
+    res.status(201).json({
+      success: true,
+      url: publicUrl,
+      imageUrl: publicUrl,
+      filename: safeFilename,
+      sizeBytes: buffer.length
+    });
+  } catch (err) {
+    console.error('[IMAGE_UPLOAD_ERROR]', err.message);
+    res.status(500).json({ success: false, message: 'Failed to process image upload.' });
+  }
+});
+
 app.post('/api/admin/products', authenticateJwt, requireAdminRole, (req, res) => {
   const newProduct = storeDb.addProduct(req.body, req.user.email);
   res.status(201).json({ success: true, product: newProduct });
@@ -341,6 +430,37 @@ app.get('/api/admin/settings', authenticateJwt, requireAdminRole, (req, res) => 
 app.put('/api/admin/settings', authenticateJwt, requireAdminRole, (req, res) => {
   const updated = storeDb.updateStoreSettings(req.body, req.user.email);
   res.json({ success: true, settings: updated });
+});
+
+// --- ADMIN STAFF & CREDENTIAL MANAGEMENT (Admin Only) ---
+app.get('/api/admin/staff', authenticateJwt, requireAdminRole, (req, res) => {
+  res.json({
+    success: true,
+    staff: storeDb.getAdmins()
+  });
+});
+
+app.post('/api/admin/staff', authenticateJwt, requireAdminRole, (req, res) => {
+  const { email, phone, name, password, role } = req.body;
+  try {
+    const newAdmin = storeDb.createAdmin({ email, phone, name, password, role }, req.user.email);
+    res.status(201).json({ success: true, admin: newAdmin });
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+app.put('/api/admin/change-password', authenticateJwt, requireAdminRole, (req, res) => {
+  const { newPassword } = req.body;
+  if (!newPassword || newPassword.length < 6) {
+    return res.status(400).json({ success: false, message: 'Password must be at least 6 characters.' });
+  }
+  try {
+    storeDb.updateAdminPassword(req.user.email, newPassword, req.user.email);
+    res.json({ success: true, message: 'Admin password updated successfully.' });
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
 });
 
 // -----------------------------------------------------------------------------

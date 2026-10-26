@@ -27,7 +27,7 @@ import { useStore } from './context/StoreContext';
 
 export default function App() {
   const { products, categories } = useProducts();
-  const { notification, showNotification } = useCart();
+  const { notification, showNotification, authPrompt, closeAuthPrompt } = useCart();
   const { activeTrackingId, setActiveTrackingId } = useOrders();
   const { isAdmin } = useAuth();
   const { settings } = useStore();
@@ -345,8 +345,12 @@ export default function App() {
       />
 
       <AuthModal
-        isOpen={isAuthOpen}
-        onClose={() => setIsAuthOpen(false)}
+        isOpen={isAuthOpen || !!authPrompt?.isOpen}
+        promptMessage={authPrompt?.message}
+        onClose={() => {
+          setIsAuthOpen(false);
+          if (closeAuthPrompt) closeAuthPrompt();
+        }}
         onAdminSuccess={() => {
           setCurrentView('admin');
           window.scrollTo({ top: 0, behavior: 'smooth' });

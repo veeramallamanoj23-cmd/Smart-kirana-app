@@ -9,16 +9,17 @@ import {
 } from './cryptoUtils.js';
 import { isValidIndianMobile, normalizePhone, sanitizeString } from './sanitizer.js';
 import { recordAuditLog } from './auditLogger.js';
-import { dispatchSmsOtp } from './smsProvider.js';
+import { dispatchSmsOtp, dispatchWhatsAppOtp } from './otpDispatcher.js';
+import { storeDb } from '../data/storeState.js';
 
 // In-Memory Secure OTP and Rate Lock Cache
 // Structure: Map<phone, { hash, expiresAt, lastSentAt, attempts, lockedUntil, customerName }>
 const OTP_STORE = new Map();
 
 /**
- * Request an OTP for customer mobile authentication
+ * Request an OTP for customer mobile authentication via SMS or WhatsApp
  */
-export async function requestCustomerOtp(rawPhone, ip = '') {
+export async function requestCustomerOtp(rawPhone, ip = '', channel = 'sms', countryCode = '91') {
   if (!isValidIndianMobile(rawPhone)) {
     return {
       success: false,
@@ -29,6 +30,8 @@ export async function requestCustomerOtp(rawPhone, ip = '') {
   }
 
   const phone = normalizePhone(rawPhone);
+  const selectedChannel = channel === 'whatsapp' ? 'whatsapp' : 'sms';
+  const cleanCountryCode = (countryCode || '91').replace(/\D/g, '') || '91';
   const now = Date.now();
   const existing = OTP_STORE.get(phone);
 
@@ -40,7 +43,7 @@ export async function requestCustomerOtp(rawPhone, ip = '') {
       actor: 'customer',
       actorId: phone,
       ip,
-      details: { minutesRemaining }
+      details: { minutesRemaining, channel: selectedChannel }
     });
     return {
       success: false,
@@ -81,20 +84,28 @@ export async function requestCustomerOtp(rawPhone, ip = '') {
     actor: 'customer',
     actorId: phone,
     ip,
-    details: { maskedPhone: maskPhoneNumber(phone) }
+    details: { maskedPhone: maskPhoneNumber(phone), channel: selectedChannel }
   });
 
-  // Securely dispatch OTP via Cellular SMS Gateway (or console in simulation)
-  await dispatchSmsOtp(phone, rawOtp);
+  // Securely dispatch OTP via selected Channel (WhatsApp Business API or Cellular SMS)
+  let dispatchResult;
+  if (selectedChannel === 'whatsapp') {
+    dispatchResult = await dispatchWhatsAppOtp(phone, rawOtp, cleanCountryCode);
+  } else {
+    dispatchResult = await dispatchSmsOtp(phone, rawOtp, cleanCountryCode);
+  }
+
+  const channelLabel = selectedChannel === 'whatsapp' ? 'WhatsApp' : 'SMS';
 
   return {
     success: true,
     status: 200,
-    message: `OTP sent successfully to +91 ${maskPhoneNumber(phone)}.`,
+    channel: selectedChannel,
+    message: `OTP sent successfully via ${channelLabel} to +${cleanCountryCode} ${maskPhoneNumber(phone)}.`,
     maskedPhone: maskPhoneNumber(phone),
     cooldownSeconds: 60,
     expiresInSeconds: 300,
-    // Provide OTP in dev test response for automated testing convenience
+    // Note: devOtp is strictly omitted in production environments
     devOtp: process.env.NODE_ENV !== 'production' ? rawOtp : undefined
   };
 }
@@ -227,37 +238,50 @@ export function verifyCustomerOtp(rawPhone, enteredOtp, name = '', ip = '') {
 
 /**
  * Authenticate Administrator with secure salted hash
+ * Supports store owner phone (e.g. 9392398990) or admin email
  */
-export function authenticateAdmin(email, password, ip = '') {
-  const cleanEmail = String(email || '').trim().toLowerCase();
+export function authenticateAdmin(emailOrPhone, password, ip = '') {
+  const clean = String(emailOrPhone || '').trim().toLowerCase();
   
-  if (cleanEmail !== SECURITY_CONFIG.ADMIN.EMAIL.toLowerCase()) {
+  const admin = storeDb.findAdminByLogin(clean) || (
+    clean === SECURITY_CONFIG.ADMIN.EMAIL.toLowerCase() ? {
+      id: 'admin_root',
+      email: SECURITY_CONFIG.ADMIN.EMAIL,
+      name: 'Store Administrator',
+      phone: '9392398990',
+      role: 'super_admin',
+      salt: SECURITY_CONFIG.ADMIN.SALT,
+      passwordHash: SECURITY_CONFIG.ADMIN.PASSWORD_HASH
+    } : null
+  );
+
+  if (!admin) {
     recordAuditLog({
       action: 'ADMIN_LOGIN_FAILURE',
       actor: 'admin',
-      actorId: cleanEmail,
+      actorId: clean,
       ip,
-      details: { reason: 'Unknown admin email' }
+      details: { reason: 'Unknown admin account' }
     });
     return {
       success: false,
       status: 401,
       error: 'INVALID_CREDENTIALS',
-      message: 'Invalid administrator email or password.'
+      message: 'Invalid administrator email/phone or password.'
     };
   }
 
   const isPasswordValid = verifyPassword(
     password,
-    SECURITY_CONFIG.ADMIN.SALT,
-    SECURITY_CONFIG.ADMIN.PASSWORD_HASH
+    admin.salt,
+    admin.passwordHash
   );
 
   if (!isPasswordValid) {
     recordAuditLog({
       action: 'ADMIN_LOGIN_FAILURE',
       actor: 'admin',
-      actorId: cleanEmail,
+      actorId: admin.email,
       ip,
       details: { reason: 'Incorrect password' }
     });
@@ -265,15 +289,16 @@ export function authenticateAdmin(email, password, ip = '') {
       success: false,
       status: 401,
       error: 'INVALID_CREDENTIALS',
-      message: 'Invalid administrator email or password.'
+      message: 'Invalid administrator email/phone or password.'
     };
   }
 
   // Issue Admin JWT Token with strictly short 2-hour lifespan
   const token = jwt.sign(
     {
-      sub: 'admin_root',
-      email: SECURITY_CONFIG.ADMIN.EMAIL,
+      sub: admin.id,
+      email: admin.email,
+      name: admin.name || 'Store Staff',
       role: 'admin'
     },
     SECURITY_CONFIG.JWT_SECRET,
@@ -283,7 +308,7 @@ export function authenticateAdmin(email, password, ip = '') {
   recordAuditLog({
     action: 'ADMIN_LOGIN_SUCCESS',
     actor: 'admin',
-    actorId: cleanEmail,
+    actorId: admin.email,
     ip,
     details: { role: 'admin' }
   });
@@ -293,8 +318,11 @@ export function authenticateAdmin(email, password, ip = '') {
     status: 200,
     token,
     admin: {
-      email: SECURITY_CONFIG.ADMIN.EMAIL,
-      role: 'admin'
+      id: admin.id,
+      email: admin.email,
+      name: admin.name || 'Store Staff',
+      phone: admin.phone || '',
+      role: admin.role || 'admin'
     }
   };
 }

@@ -55,6 +55,7 @@ export default function CheckoutPage({ onBackToShopping, onOrderComplete }) {
   const [pincodeError, setPincodeError] = useState('');
   const [geoStatus, setGeoStatus] = useState('');
   const [isLocating, setIsLocating] = useState(false);
+  const [customerCoords, setCustomerCoords] = useState(null);
   const [showUpiModal, setShowUpiModal] = useState(false);
   const [createdOrder, setCreatedOrder] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -71,8 +72,9 @@ export default function CheckoutPage({ onBackToShopping, onOrderComplete }) {
       (pos) => {
         setIsLocating(false);
         const { latitude, longitude } = pos.coords;
-        const storeLat = settings?.latitude || 12.9352;
-        const storeLon = settings?.longitude || 77.6245;
+        setCustomerCoords({ lat: latitude, lon: longitude });
+        const storeLat = settings?.storeLat || settings?.latitude || 12.9352;
+        const storeLon = settings?.storeLng || settings?.longitude || 77.6245;
         const R = 6371; // Earth radius in km
         const dLat = (latitude - storeLat) * Math.PI / 180;
         const dLon = (longitude - storeLon) * Math.PI / 180;
@@ -143,7 +145,9 @@ export default function CheckoutPage({ onBackToShopping, onOrderComplete }) {
         street: formData.street,
         landmark: formData.landmark,
         city: formData.city,
-        pincode: formData.pincode
+        pincode: formData.pincode,
+        lat: customerCoords?.lat,
+        lon: customerCoords?.lon
       },
       items: cartItems.map(item => ({
         id: item.id,

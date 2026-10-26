@@ -8,7 +8,7 @@
       "size": "5 kg",
       "price": 245,
       "mrp": 290,
-      "stock": 29,
+      "stock": 38,
       "rating": 4.8,
       "reviewsCount": 312,
       "isAvailable": true,
@@ -17,7 +17,9 @@
       "isNew": false,
       "deliveryTime": "15-20 mins",
       "image": "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=600&q=80",
-      "description": "100% whole wheat atta with 0% maida. Prepared by traditional chakki grinding process to retain natural dietary fibers."
+      "description": "100% whole wheat atta with 0% maida. Prepared by traditional chakki grinding process to retain natural dietary fibers.",
+      "discount": 15,
+      "sku": "SKU-337251"
     },
     {
       "id": "groc-2",
@@ -806,7 +808,7 @@
       "size": "1 L Tetra",
       "price": 74,
       "mrp": 75,
-      "stock": 38,
+      "stock": 26,
       "rating": 4.9,
       "reviewsCount": 840,
       "isAvailable": true,
@@ -863,7 +865,7 @@
       "size": "6 Pcs",
       "price": 65,
       "mrp": 75,
-      "stock": 28,
+      "stock": 27,
       "rating": 4.8,
       "reviewsCount": 230,
       "isAvailable": true,
@@ -1073,6 +1075,678 @@
     }
   ],
   "orders": [
+    {
+      "id": "SK-19012",
+      "customerId": "cust_9876500070",
+      "createdAt": "2026-10-26T08:33:34.818Z",
+      "customer": {
+        "name": "scriptalert(\"XSS\")/scriptJohn Doe",
+        "phone": "9876500070",
+        "email": "9876500070@smartkirana.customer"
+      },
+      "address": {
+        "flat": "img src=x onerror=alert(1)",
+        "street": "HSR Layout",
+        "landmark": "",
+        "city": "Bangalore",
+        "pincode": "560102",
+        "verifiedDistanceKm": 3.05
+      },
+      "items": [
+        {
+          "id": "dry-1",
+          "name": "Amul Taaza Homogenised Toned Milk",
+          "brand": "Amul",
+          "size": "1 L Tetra",
+          "price": 74,
+          "mrp": 75,
+          "quantity": 1,
+          "image": "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80"
+        }
+      ],
+      "bill": {
+        "subtotal": 74,
+        "deliveryFee": 25,
+        "handlingFee": 4,
+        "discount": 0,
+        "total": 103
+      },
+      "paymentMethod": "upi_qr",
+      "paymentStatus": "pending",
+      "orderStatus": "placed",
+      "deliverySlot": "Express (15-25 Mins)",
+      "instructions": ""
+    },
+    {
+      "id": "SK-92019",
+      "customerId": "cust_9876500060",
+      "createdAt": "2026-10-26T08:33:34.802Z",
+      "customer": {
+        "name": "Double Clicker",
+        "phone": "9876500060",
+        "email": "9876500060@smartkirana.customer"
+      },
+      "address": {
+        "flat": "Apt 4",
+        "street": "Koramangala",
+        "landmark": "",
+        "city": "Bangalore",
+        "pincode": "560034",
+        "verifiedDistanceKm": 0.14
+      },
+      "items": [
+        {
+          "id": "dry-1",
+          "name": "Amul Taaza Homogenised Toned Milk",
+          "brand": "Amul",
+          "size": "1 L Tetra",
+          "price": 74,
+          "mrp": 75,
+          "quantity": 1,
+          "image": "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80"
+        }
+      ],
+      "bill": {
+        "subtotal": 74,
+        "deliveryFee": 25,
+        "handlingFee": 4,
+        "discount": 0,
+        "total": 103
+      },
+      "paymentMethod": "upi_qr",
+      "paymentStatus": "pending",
+      "orderStatus": "placed",
+      "deliverySlot": "Express (15-25 Mins)",
+      "instructions": ""
+    },
+    {
+      "id": "SK-40775",
+      "customerId": "cust_9876500040",
+      "createdAt": "2026-10-26T08:33:34.796Z",
+      "customer": {
+        "name": "Local Resident",
+        "phone": "9876500040",
+        "email": "9876500040@smartkirana.customer"
+      },
+      "address": {
+        "flat": "Flat 20",
+        "street": "Sector 4, HSR",
+        "landmark": "",
+        "city": "Bangalore",
+        "pincode": "560102",
+        "verifiedDistanceKm": 3.05
+      },
+      "items": [
+        {
+          "id": "dry-1",
+          "name": "Amul Taaza Homogenised Toned Milk",
+          "brand": "Amul",
+          "size": "1 L Tetra",
+          "price": 74,
+          "mrp": 75,
+          "quantity": 1,
+          "image": "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80"
+        }
+      ],
+      "bill": {
+        "subtotal": 74,
+        "deliveryFee": 25,
+        "handlingFee": 4,
+        "discount": 0,
+        "total": 103
+      },
+      "paymentMethod": "upi_qr",
+      "paymentStatus": "pending",
+      "orderStatus": "placed",
+      "deliverySlot": "Express (15-25 Mins)",
+      "instructions": ""
+    },
+    {
+      "id": "SK-72911",
+      "customerId": "cust_9876500030",
+      "createdAt": "2026-10-26T08:33:34.792Z",
+      "customer": {
+        "name": "Price Attacker",
+        "phone": "9876500030",
+        "email": "9876500030@smartkirana.customer"
+      },
+      "address": {
+        "flat": "Flat 10",
+        "street": "HSR Layout",
+        "landmark": "",
+        "city": "Bangalore",
+        "pincode": "560102",
+        "verifiedDistanceKm": 3.05
+      },
+      "items": [
+        {
+          "id": "groc-1",
+          "name": "Aashirvaad Shudh Chakki Atta",
+          "brand": "Aashirvaad",
+          "size": "5 kg",
+          "price": 245,
+          "mrp": 290,
+          "quantity": 2,
+          "image": "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=600&q=80"
+        }
+      ],
+      "bill": {
+        "subtotal": 490,
+        "deliveryFee": 0,
+        "handlingFee": 4,
+        "discount": 0,
+        "total": 494
+      },
+      "paymentMethod": "upi_qr",
+      "paymentStatus": "pending",
+      "orderStatus": "placed",
+      "deliverySlot": "Express (15-25 Mins)",
+      "instructions": ""
+    },
+    {
+      "id": "SK-51125",
+      "customerId": "cust_9876500010",
+      "createdAt": "2026-10-26T08:33:34.779Z",
+      "customer": {
+        "name": "Customer One",
+        "phone": "9876500010",
+        "email": "9876500010@smartkirana.customer"
+      },
+      "address": {
+        "flat": "Flat 1",
+        "street": "HSR Layout",
+        "landmark": "",
+        "city": "Bangalore",
+        "pincode": "560102",
+        "verifiedDistanceKm": 3.05
+      },
+      "items": [
+        {
+          "id": "dry-1",
+          "name": "Amul Taaza Homogenised Toned Milk",
+          "brand": "Amul",
+          "size": "1 L Tetra",
+          "price": 74,
+          "mrp": 75,
+          "quantity": 1,
+          "image": "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80"
+        }
+      ],
+      "bill": {
+        "subtotal": 74,
+        "deliveryFee": 25,
+        "handlingFee": 4,
+        "discount": 0,
+        "total": 103
+      },
+      "paymentMethod": "upi_qr",
+      "paymentStatus": "pending",
+      "orderStatus": "placed",
+      "deliverySlot": "Express (15-25 Mins)",
+      "instructions": ""
+    },
+    {
+      "id": "SK-43321",
+      "customerId": "cust_9876500070",
+      "createdAt": "2026-10-26T08:32:52.723Z",
+      "customer": {
+        "name": "scriptalert(\"XSS\")/scriptJohn Doe",
+        "phone": "9876500070",
+        "email": "9876500070@smartkirana.customer"
+      },
+      "address": {
+        "flat": "img src=x onerror=alert(1)",
+        "street": "HSR Layout",
+        "landmark": "",
+        "city": "Bangalore",
+        "pincode": "560102",
+        "verifiedDistanceKm": 3.05
+      },
+      "items": [
+        {
+          "id": "dry-1",
+          "name": "Amul Taaza Homogenised Toned Milk",
+          "brand": "Amul",
+          "size": "1 L Tetra",
+          "price": 74,
+          "mrp": 75,
+          "quantity": 1,
+          "image": "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80"
+        }
+      ],
+      "bill": {
+        "subtotal": 74,
+        "deliveryFee": 25,
+        "handlingFee": 4,
+        "discount": 0,
+        "total": 103
+      },
+      "paymentMethod": "upi_qr",
+      "paymentStatus": "pending",
+      "orderStatus": "placed",
+      "deliverySlot": "Express (15-25 Mins)",
+      "instructions": ""
+    },
+    {
+      "id": "SK-72776",
+      "customerId": "cust_9876500060",
+      "createdAt": "2026-10-26T08:32:52.705Z",
+      "customer": {
+        "name": "Double Clicker",
+        "phone": "9876500060",
+        "email": "9876500060@smartkirana.customer"
+      },
+      "address": {
+        "flat": "Apt 4",
+        "street": "Koramangala",
+        "landmark": "",
+        "city": "Bangalore",
+        "pincode": "560034",
+        "verifiedDistanceKm": 0.14
+      },
+      "items": [
+        {
+          "id": "dry-1",
+          "name": "Amul Taaza Homogenised Toned Milk",
+          "brand": "Amul",
+          "size": "1 L Tetra",
+          "price": 74,
+          "mrp": 75,
+          "quantity": 1,
+          "image": "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80"
+        }
+      ],
+      "bill": {
+        "subtotal": 74,
+        "deliveryFee": 25,
+        "handlingFee": 4,
+        "discount": 0,
+        "total": 103
+      },
+      "paymentMethod": "upi_qr",
+      "paymentStatus": "pending",
+      "orderStatus": "placed",
+      "deliverySlot": "Express (15-25 Mins)",
+      "instructions": ""
+    },
+    {
+      "id": "SK-95326",
+      "customerId": "cust_9876500040",
+      "createdAt": "2026-10-26T08:32:52.701Z",
+      "customer": {
+        "name": "Local Resident",
+        "phone": "9876500040",
+        "email": "9876500040@smartkirana.customer"
+      },
+      "address": {
+        "flat": "Flat 20",
+        "street": "Sector 4, HSR",
+        "landmark": "",
+        "city": "Bangalore",
+        "pincode": "560102",
+        "verifiedDistanceKm": 3.05
+      },
+      "items": [
+        {
+          "id": "dry-1",
+          "name": "Amul Taaza Homogenised Toned Milk",
+          "brand": "Amul",
+          "size": "1 L Tetra",
+          "price": 74,
+          "mrp": 75,
+          "quantity": 1,
+          "image": "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80"
+        }
+      ],
+      "bill": {
+        "subtotal": 74,
+        "deliveryFee": 25,
+        "handlingFee": 4,
+        "discount": 0,
+        "total": 103
+      },
+      "paymentMethod": "upi_qr",
+      "paymentStatus": "pending",
+      "orderStatus": "placed",
+      "deliverySlot": "Express (15-25 Mins)",
+      "instructions": ""
+    },
+    {
+      "id": "SK-15939",
+      "customerId": "cust_9876500030",
+      "createdAt": "2026-10-26T08:32:52.698Z",
+      "customer": {
+        "name": "Price Attacker",
+        "phone": "9876500030",
+        "email": "9876500030@smartkirana.customer"
+      },
+      "address": {
+        "flat": "Flat 10",
+        "street": "HSR Layout",
+        "landmark": "",
+        "city": "Bangalore",
+        "pincode": "560102",
+        "verifiedDistanceKm": 3.05
+      },
+      "items": [
+        {
+          "id": "groc-1",
+          "name": "Aashirvaad Shudh Chakki Atta",
+          "brand": "Aashirvaad",
+          "size": "5 kg",
+          "price": 246,
+          "mrp": 290,
+          "quantity": 2,
+          "image": "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=600&q=80"
+        }
+      ],
+      "bill": {
+        "subtotal": 492,
+        "deliveryFee": 0,
+        "handlingFee": 4,
+        "discount": 0,
+        "total": 496
+      },
+      "paymentMethod": "upi_qr",
+      "paymentStatus": "pending",
+      "orderStatus": "placed",
+      "deliverySlot": "Express (15-25 Mins)",
+      "instructions": ""
+    },
+    {
+      "id": "SK-44631",
+      "customerId": "cust_9876500010",
+      "createdAt": "2026-10-26T08:32:52.690Z",
+      "customer": {
+        "name": "Customer One",
+        "phone": "9876500010",
+        "email": "9876500010@smartkirana.customer"
+      },
+      "address": {
+        "flat": "Flat 1",
+        "street": "HSR Layout",
+        "landmark": "",
+        "city": "Bangalore",
+        "pincode": "560102",
+        "verifiedDistanceKm": 3.05
+      },
+      "items": [
+        {
+          "id": "dry-1",
+          "name": "Amul Taaza Homogenised Toned Milk",
+          "brand": "Amul",
+          "size": "1 L Tetra",
+          "price": 74,
+          "mrp": 75,
+          "quantity": 1,
+          "image": "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80"
+        }
+      ],
+      "bill": {
+        "subtotal": 74,
+        "deliveryFee": 25,
+        "handlingFee": 4,
+        "discount": 0,
+        "total": 103
+      },
+      "paymentMethod": "upi_qr",
+      "paymentStatus": "pending",
+      "orderStatus": "placed",
+      "deliverySlot": "Express (15-25 Mins)",
+      "instructions": ""
+    },
+    {
+      "id": "SK-55277",
+      "customerId": "cust_9876500070",
+      "createdAt": "2026-10-26T06:20:22.405Z",
+      "customer": {
+        "name": "scriptalert(\"XSS\")/scriptJohn Doe",
+        "phone": "9876500070",
+        "email": "9876500070@smartkirana.customer"
+      },
+      "address": {
+        "flat": "img src=x onerror=alert(1)",
+        "street": "HSR Layout",
+        "landmark": "",
+        "city": "Bangalore",
+        "pincode": "560102",
+        "verifiedDistanceKm": 3.05
+      },
+      "items": [
+        {
+          "id": "dry-1",
+          "name": "Amul Taaza Homogenised Toned Milk",
+          "brand": "Amul",
+          "size": "1 L Tetra",
+          "price": 74,
+          "mrp": 75,
+          "quantity": 1,
+          "image": "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80"
+        }
+      ],
+      "bill": {
+        "subtotal": 74,
+        "deliveryFee": 25,
+        "handlingFee": 4,
+        "discount": 0,
+        "total": 103
+      },
+      "paymentMethod": "upi_qr",
+      "paymentStatus": "pending",
+      "orderStatus": "placed",
+      "deliverySlot": "Express (15-25 Mins)",
+      "instructions": ""
+    },
+    {
+      "id": "SK-26302",
+      "customerId": "cust_9876500060",
+      "createdAt": "2026-10-26T06:20:22.389Z",
+      "customer": {
+        "name": "Double Clicker",
+        "phone": "9876500060",
+        "email": "9876500060@smartkirana.customer"
+      },
+      "address": {
+        "flat": "Apt 4",
+        "street": "Koramangala",
+        "landmark": "",
+        "city": "Bangalore",
+        "pincode": "560034",
+        "verifiedDistanceKm": 0.14
+      },
+      "items": [
+        {
+          "id": "dry-1",
+          "name": "Amul Taaza Homogenised Toned Milk",
+          "brand": "Amul",
+          "size": "1 L Tetra",
+          "price": 74,
+          "mrp": 75,
+          "quantity": 1,
+          "image": "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80"
+        }
+      ],
+      "bill": {
+        "subtotal": 74,
+        "deliveryFee": 25,
+        "handlingFee": 4,
+        "discount": 0,
+        "total": 103
+      },
+      "paymentMethod": "upi_qr",
+      "paymentStatus": "pending",
+      "orderStatus": "placed",
+      "deliverySlot": "Express (15-25 Mins)",
+      "instructions": ""
+    },
+    {
+      "id": "SK-80428",
+      "customerId": "cust_9876500040",
+      "createdAt": "2026-10-26T06:20:22.384Z",
+      "customer": {
+        "name": "Local Resident",
+        "phone": "9876500040",
+        "email": "9876500040@smartkirana.customer"
+      },
+      "address": {
+        "flat": "Flat 20",
+        "street": "Sector 4, HSR",
+        "landmark": "",
+        "city": "Bangalore",
+        "pincode": "560102",
+        "verifiedDistanceKm": 3.05
+      },
+      "items": [
+        {
+          "id": "dry-1",
+          "name": "Amul Taaza Homogenised Toned Milk",
+          "brand": "Amul",
+          "size": "1 L Tetra",
+          "price": 74,
+          "mrp": 75,
+          "quantity": 1,
+          "image": "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80"
+        }
+      ],
+      "bill": {
+        "subtotal": 74,
+        "deliveryFee": 25,
+        "handlingFee": 4,
+        "discount": 0,
+        "total": 103
+      },
+      "paymentMethod": "upi_qr",
+      "paymentStatus": "pending",
+      "orderStatus": "placed",
+      "deliverySlot": "Express (15-25 Mins)",
+      "instructions": ""
+    },
+    {
+      "id": "SK-19351",
+      "customerId": "cust_9876500030",
+      "createdAt": "2026-10-26T06:20:22.381Z",
+      "customer": {
+        "name": "Price Attacker",
+        "phone": "9876500030",
+        "email": "9876500030@smartkirana.customer"
+      },
+      "address": {
+        "flat": "Flat 10",
+        "street": "HSR Layout",
+        "landmark": "",
+        "city": "Bangalore",
+        "pincode": "560102",
+        "verifiedDistanceKm": 3.05
+      },
+      "items": [
+        {
+          "id": "groc-1",
+          "name": "Aashirvaad Shudh Chakki Atta",
+          "brand": "Aashirvaad",
+          "size": "5 kg",
+          "price": 245,
+          "mrp": 290,
+          "quantity": 2,
+          "image": "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=600&q=80"
+        }
+      ],
+      "bill": {
+        "subtotal": 490,
+        "deliveryFee": 0,
+        "handlingFee": 4,
+        "discount": 0,
+        "total": 494
+      },
+      "paymentMethod": "upi_qr",
+      "paymentStatus": "pending",
+      "orderStatus": "placed",
+      "deliverySlot": "Express (15-25 Mins)",
+      "instructions": ""
+    },
+    {
+      "id": "SK-60490",
+      "customerId": "cust_9876500010",
+      "createdAt": "2026-10-26T06:20:22.373Z",
+      "customer": {
+        "name": "Customer One",
+        "phone": "9876500010",
+        "email": "9876500010@smartkirana.customer"
+      },
+      "address": {
+        "flat": "Flat 1",
+        "street": "HSR Layout",
+        "landmark": "",
+        "city": "Bangalore",
+        "pincode": "560102",
+        "verifiedDistanceKm": 3.05
+      },
+      "items": [
+        {
+          "id": "dry-1",
+          "name": "Amul Taaza Homogenised Toned Milk",
+          "brand": "Amul",
+          "size": "1 L Tetra",
+          "price": 74,
+          "mrp": 75,
+          "quantity": 1,
+          "image": "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80"
+        }
+      ],
+      "bill": {
+        "subtotal": 74,
+        "deliveryFee": 25,
+        "handlingFee": 4,
+        "discount": 0,
+        "total": 103
+      },
+      "paymentMethod": "upi_qr",
+      "paymentStatus": "pending",
+      "orderStatus": "placed",
+      "deliverySlot": "Express (15-25 Mins)",
+      "instructions": ""
+    },
+    {
+      "id": "SK-56687",
+      "customerId": "cust_9555955262",
+      "createdAt": "2026-10-25T15:46:48.049Z",
+      "customer": {
+        "name": "yamini",
+        "phone": "9555955262",
+        "email": "9555955262@smartkirana.customer"
+      },
+      "address": {
+        "flat": "46646",
+        "street": "SBH Colony 2-43-28",
+        "landmark": "",
+        "city": "Bangalore",
+        "pincode": "560001",
+        "verifiedDistanceKm": 4.87
+      },
+      "items": [
+        {
+          "id": "dry-4",
+          "name": "Fresh Farm Brown Eggs (Pack of 6)",
+          "brand": "Farm Fresh",
+          "size": "6 Pcs",
+          "price": 65,
+          "mrp": 75,
+          "quantity": 1,
+          "image": "https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&w=600&q=80"
+        }
+      ],
+      "bill": {
+        "subtotal": 65,
+        "deliveryFee": 25,
+        "handlingFee": 4,
+        "discount": 0,
+        "total": 94
+      },
+      "paymentMethod": "upi_qr",
+      "paymentStatus": "pending",
+      "orderStatus": "placed",
+      "deliverySlot": "Express (15-25 Mins)",
+      "instructions": ""
+    },
     {
       "id": "SK-66540",
       "customerId": "cust_9876500070",
@@ -1705,12 +2379,12 @@
     }
   ],
   "settings": {
-    "storeName": "Smart Kirana",
+    "storeName": "Smart ",
     "tagline": "Superfast Online Grocery & General Store",
     "phone": "+91 98765 43210",
     "whatsapp": "+91 98765 43210",
     "email": "care@smartkirana.store",
-    "storeAddress": "Shop #14, Main Market Road, Near Gandhi Chowk, Bangalore 560034",
+    "storeAddress": "Shiva kiranam general store ,hayathnagar",
     "operatingHours": "7:00 AM - 11:00 PM",
     "isOpen": true,
     "deliveryFee": 25,
@@ -1720,22 +2394,10 @@
     "merchantUpiId": "smartkirana@okhdfcbank",
     "merchantName": "Smart Kirana Store",
     "serviceablePincodes": [
-      "560001",
-      "560034",
-      "560102",
-      "560068",
-      "560095",
-      "110001",
-      "400001",
-      "500001"
+      "500074"
     ],
     "serviceableAreas": [
-      "Koramangala (Blocks 1-8)",
-      "HSR Layout (Sectors 1-7)",
-      "BTM Layout (Stages 1 & 2)",
-      "Indiranagar & Domlur",
-      "Jayanagar 4th Block",
-      "Bellandur & Green Glen"
+      "hayathnagar"
     ],
     "coupons": [
       {
@@ -1757,7 +2419,44 @@
         "minOrder": 149,
         "description": "Free delivery on orders above ₹149"
       }
+    ],
+    "storeLat": 12.9352,
+    "storeLng": 77.6245,
+    "maxDeliveryRadiusKm": 10,
+    "deliveryAreas": [
+      {
+        "id": "area-1793004352433",
+        "name": "hayathnagar",
+        "pincodes": [
+          "500074"
+        ],
+        "isActive": true,
+        "description": ""
+      }
     ]
   },
-  "lastSaved": "2026-10-25T14:47:33.026Z"
+  "admins": [
+    {
+      "id": "admin_master",
+      "email": "admin@smartkirana.store",
+      "phone": "9392398990",
+      "name": "Store Owner",
+      "role": "super_admin",
+      "salt": "smartkirana_admin_salt_887192",
+      "passwordHash": "393feb5225a6350784e6631c45c9aeca89feba2a52f90c558e4d8cdf3cc55c47cbec434a93b3e37e583ca6d0d7fa36701f5853e8ba432ca1ed9d91b0994a7ed3",
+      "createdAt": "2026-10-25T15:04:09.365Z"
+    },
+    {
+      "id": "admin_1792998886432",
+      "email": "veeramallamanoj23@gmail.com",
+      "phone": "9392398990",
+      "name": "Veeramalla Manoj",
+      "role": "staff_admin",
+      "salt": "4ed8f4166bc65fa8ac53be62a913d815",
+      "passwordHash": "e5d8ae7fb8eee4e780fc07dafc9173c20271c6c659dc85cd984364a6486a5bcf955bf30ae1ef0373f850100111ca087923480793f8f3f0d356c5b12421e95274",
+      "createdAt": "2026-10-26T07:14:46.432Z",
+      "createdBy": "admin@smartkirana.store"
+    }
+  ],
+  "lastSaved": "2026-10-26T08:45:52.439Z"
 }

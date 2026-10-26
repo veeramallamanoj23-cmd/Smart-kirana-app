@@ -4,7 +4,7 @@ import { useStore } from '../../context/StoreContext';
 
 export default function WhatsAppButton() {
   const { settings } = useStore();
-  const rawPhone = settings.whatsapp || settings.phone || '919876543210';
+  const rawPhone = settings.whatsapp || settings.phone || '919392398990';
   const cleanPhone = rawPhone.replace(/\D/g, '');
   const phoneWithCountry = cleanPhone.startsWith('91') ? cleanPhone : `91${cleanPhone}`;
 
