@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
 import LocationModal from './components/common/LocationModal';
@@ -98,6 +99,10 @@ export default function App() {
   }, [products, searchQuery, selectedCategory, inStockOnly, maxPrice, sortBy]);
 
   // Curated subsets for Homepage Shelves
+  const freshProduceProducts = useMemo(() => {
+    return products.filter(p => (p.category === 'fresh-vegetables' || p.category === 'fresh-fruits') && p.stock > 0);
+  }, [products]);
+
   const bestSellerProducts = useMemo(() => {
     return products.filter(p => p.isBestSeller && p.stock > 0);
   }, [products]);
@@ -131,7 +136,7 @@ export default function App() {
   const activeCategoryObj = categories.find(c => c.id === selectedCategory);
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 selection:bg-kirana-100 selection:text-kirana-800">
+    <div className="min-h-screen flex flex-col bg-[#FAFAF5] text-[#202820] selection:bg-[#DDF7E5] selection:text-[#16803D]">
       
       {/* Sticky Global Navigation */}
       <Navbar
@@ -171,7 +176,11 @@ export default function App() {
                 onSelectCategory={(catId) => {
                   setSelectedCategory(catId);
                   window.scrollTo({ top: 380, behavior: 'smooth' });
-                }} 
+                }}
+                onShopNow={() => {
+                  const catalogEl = document.getElementById('catalog-section');
+                  if (catalogEl) catalogEl.scrollIntoView({ behavior: 'smooth' });
+                }}
               />
             )}
 
@@ -187,6 +196,19 @@ export default function App() {
                 products={products}
                 onOpenDetail={(prod) => setDetailProduct(prod)}
                 onSelectCategory={(catId) => setSelectedCategory(catId)}
+              />
+            )}
+
+            {/* Curated Shelf: Farm Fresh Vegetables & Fruits */}
+            {!selectedCategory && !searchQuery && freshProduceProducts.length > 0 && (
+              <ProductShelf
+                title="Farm Fresh Vegetables & Sweet Fruits"
+                subtitle="Directly harvested from local growers, cleaned & packed for daily cooking"
+                icon="🥦"
+                badge="100% Farm Fresh"
+                products={freshProduceProducts}
+                onOpenDetail={(prod) => setDetailProduct(prod)}
+                onViewAll={() => setSelectedCategory('fresh-vegetables')}
               />
             )}
 
@@ -234,7 +256,12 @@ export default function App() {
 
             {/* Main Product Catalog Grid */}
             {filteredProducts.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 my-4">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 my-4"
+              >
                 {filteredProducts.map((product) => (
                   <ProductCard
                     key={product.id}
@@ -242,20 +269,20 @@ export default function App() {
                     onOpenDetail={(prod) => setDetailProduct(prod)}
                   />
                 ))}
-              </div>
+              </motion.div>
             ) : (
               /* Friendly "No Products Found" State */
               <div className="py-16 text-center bg-white rounded-3xl border border-slate-100 p-8 my-6 shadow-sm">
-                <div className="w-16 h-16 mx-auto rounded-3xl bg-amber-50 text-amber-600 flex items-center justify-center text-3xl mb-3">
+                <div className="w-16 h-16 mx-auto rounded-3xl bg-[#FFF3E6] text-[#FF9F43] flex items-center justify-center text-3xl mb-3">
                   🔍
                 </div>
-                <h3 className="font-extrabold text-slate-900 text-lg">No Products Found</h3>
+                <h3 className="font-extrabold text-[#202820] text-lg">No Products Found</h3>
                 <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-                  We couldn't find any items matching your active search or filters. Try clearing filters or searching for staples like atta, milk, chips, or oil.
+                  We couldn't find any items matching your active search or filters. Try clearing filters or searching for fresh vegetables, fruits, atta, milk, chips, or oil.
                 </p>
                 <button
                   onClick={handleResetFilters}
-                  className="mt-5 px-6 py-2.5 bg-kirana-600 hover:bg-kirana-700 text-white font-bold text-xs rounded-2xl shadow-md transition-all"
+                  className="mt-5 px-6 py-2.5 bg-[#16803D] hover:bg-[#146c34] text-white font-extrabold text-xs rounded-2xl shadow-md transition-all"
                 >
                   Reset All Filters
                 </button>

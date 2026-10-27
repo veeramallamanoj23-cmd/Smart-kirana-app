@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { 
   X, 
   Star, 
@@ -9,7 +10,8 @@ import {
   Plus, 
   Minus, 
   Sparkles,
-  PackageCheck
+  PackageCheck,
+  CheckCircle2
 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { formatCurrency } from '../../lib/upi';
@@ -30,7 +32,13 @@ export default function ProductDetailModal({ product, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-150">
-      <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-elevated border border-slate-100 p-5 sm:p-7 animate-in zoom-in-95 duration-150">
+      <motion.div 
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.95, opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-elevated border border-slate-100 p-5 sm:p-7"
+      >
         
         {/* Close Button */}
         <div className="flex justify-end">
@@ -45,9 +53,9 @@ export default function ProductDetailModal({ product, onClose }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 mt-1">
           
           {/* Image preview */}
-          <div className="relative aspect-square rounded-2xl bg-slate-50 border border-slate-100 overflow-hidden flex items-center justify-center">
+          <div className="relative aspect-square rounded-2xl bg-[#FAFAF5] border border-slate-100 overflow-hidden flex items-center justify-center">
             {discountPercent > 0 && (
-              <div className="absolute top-3 left-3 z-10 bg-amber-500 text-slate-950 font-black text-xs px-2.5 py-1 rounded-xl shadow-sm">
+              <div className="absolute top-3 left-3 z-10 bg-[#FF9F43] text-slate-950 font-black text-xs px-2.5 py-1 rounded-xl shadow-sm">
                 {discountPercent}% OFF
               </div>
             )}
@@ -66,36 +74,36 @@ export default function ProductDetailModal({ product, onClose }) {
           <div className="flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs font-bold uppercase tracking-wider text-kirana-700 bg-kirana-50 px-2 py-0.5 rounded-md">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#16803D] bg-[#DDF7E5] px-2.5 py-0.5 rounded-lg">
                   {product.brand}
                 </span>
-                <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
+                <span className="text-xs font-bold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-lg">
                   {product.size}
                 </span>
               </div>
 
-              <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 leading-snug mt-1">
+              <h2 className="text-lg sm:text-xl font-extrabold text-[#202820] leading-snug mt-1">
                 {product.name}
               </h2>
 
               {/* Rating & reviews */}
               <div className="flex items-center gap-2 mt-2">
-                <div className="flex items-center gap-1 bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-lg text-xs">
-                  <Star className="w-3.5 h-3.5 fill-emerald-600 text-emerald-600" />
+                <div className="flex items-center gap-1 bg-[#DDF7E5] text-[#16803D] font-bold px-2 py-0.5 rounded-lg text-xs">
+                  <Star className="w-3.5 h-3.5 fill-[#16803D] text-[#16803D]" />
                   <span>{product.rating || '4.8'}</span>
                 </div>
-                <span className="text-xs text-slate-400">({product.reviewsCount || 60} verified ratings)</span>
+                <span className="text-xs text-slate-400">({product.reviewsCount || 60} verified reviews)</span>
               </div>
 
               {/* Price section */}
-              <div className="my-3.5 p-3.5 bg-slate-50 rounded-2xl border border-slate-100">
+              <div className="my-3.5 p-3.5 bg-[#FAFAF5] rounded-2xl border border-slate-100">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-black text-slate-900">{formatCurrency(product.price)}</span>
+                  <span className="text-2xl font-black text-[#202820]">{formatCurrency(product.price)}</span>
                   {product.mrp > product.price && (
                     <span className="text-sm text-slate-400 line-through">{formatCurrency(product.mrp)}</span>
                   )}
                   {discountPercent > 0 && (
-                    <span className="text-xs font-bold text-amber-600">Save {formatCurrency(product.mrp - product.price)}</span>
+                    <span className="text-xs font-bold text-[#16803D]">Save {formatCurrency(product.mrp - product.price)}</span>
                   )}
                 </div>
                 <p className="text-[11px] text-slate-500 mt-0.5 font-medium">Inclusive of all taxes</p>
@@ -109,19 +117,19 @@ export default function ProductDetailModal({ product, onClose }) {
 
               {/* Key Assurance Badges */}
               <div className="grid grid-cols-2 gap-2 my-4 text-[11px] text-slate-600">
-                <div className="flex items-center gap-1.5 p-2 rounded-xl bg-slate-50">
-                  <Zap className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                <div className="flex items-center gap-1.5 p-2 rounded-xl bg-[#FAFAF5]">
+                  <Zap className="w-4 h-4 text-[#FF9F43] flex-shrink-0" />
                   <span>15-25 Mins Express Delivery</span>
                 </div>
-                <div className="flex items-center gap-1.5 p-2 rounded-xl bg-slate-50">
-                  <ShieldCheck className="w-4 h-4 text-kirana-600 flex-shrink-0" />
-                  <span>100% Genuine Brand Item</span>
+                <div className="flex items-center gap-1.5 p-2 rounded-xl bg-[#FAFAF5]">
+                  <ShieldCheck className="w-4 h-4 text-[#16803D] flex-shrink-0" />
+                  <span>100% Genuine Quality</span>
                 </div>
-                <div className="flex items-center gap-1.5 p-2 rounded-xl bg-slate-50">
+                <div className="flex items-center gap-1.5 p-2 rounded-xl bg-[#FAFAF5]">
                   <PackageCheck className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                  <span>Available Units: {product.stock}</span>
+                  <span>Available Stock: {product.stock}</span>
                 </div>
-                <div className="flex items-center gap-1.5 p-2 rounded-xl bg-slate-50">
+                <div className="flex items-center gap-1.5 p-2 rounded-xl bg-[#FAFAF5]">
                   <RotateCcw className="w-4 h-4 text-slate-500 flex-shrink-0" />
                   <span>Instant Return at Doorstep</span>
                 </div>
@@ -132,7 +140,7 @@ export default function ProductDetailModal({ product, onClose }) {
             <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-4">
               <div>
                 <span className="text-xs text-slate-500 block">Total Amount:</span>
-                <span className="text-lg font-black text-slate-900">
+                <span className="text-lg font-black text-[#202820]">
                   {formatCurrency(product.price * (currentQuantity > 0 ? currentQuantity : 1))}
                 </span>
               </div>
@@ -146,17 +154,19 @@ export default function ProductDetailModal({ product, onClose }) {
                     Currently Out of Stock
                   </button>
                 ) : currentQuantity === 0 ? (
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => addToCart(product, 1)}
-                    className="px-6 py-2.5 rounded-2xl bg-kirana-600 hover:bg-kirana-700 text-white font-bold text-xs sm:text-sm shadow-md transition-all active:scale-95"
+                    className="px-6 py-2.5 rounded-2xl bg-[#16803D] hover:bg-[#146c34] text-white font-extrabold text-xs sm:text-sm shadow-md transition-all"
                   >
                     Add to Cart
-                  </button>
+                  </motion.button>
                 ) : (
-                  <div className="flex items-center bg-kirana-600 text-white rounded-2xl shadow-md overflow-hidden">
+                  <div className="flex items-center bg-[#16803D] text-white rounded-2xl shadow-md overflow-hidden">
                     <button
                       onClick={() => updateQuantity(product.id, currentQuantity - 1, product.stock)}
-                      className="p-2 sm:p-2.5 hover:bg-kirana-700 transition-colors"
+                      className="p-2 sm:p-2.5 hover:bg-[#146c34] transition-colors"
                     >
                       <Minus className="w-4 h-4" />
                     </button>
@@ -166,7 +176,7 @@ export default function ProductDetailModal({ product, onClose }) {
                     <button
                       onClick={() => addToCart(product, 1)}
                       disabled={currentQuantity >= product.stock}
-                      className="p-2 sm:p-2.5 hover:bg-kirana-700 disabled:opacity-40 transition-colors"
+                      className="p-2 sm:p-2.5 hover:bg-[#146c34] disabled:opacity-40 transition-colors"
                     >
                       <Plus className="w-4 h-4" />
                     </button>
@@ -179,7 +189,7 @@ export default function ProductDetailModal({ product, onClose }) {
 
         </div>
 
-      </div>
+      </motion.div>
     </div>
   );
 }

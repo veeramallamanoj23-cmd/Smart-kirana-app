@@ -1,11 +1,20 @@
 export const CATEGORIES = [
   {
-    id: 'groceries-staples',
-    name: 'Groceries & Staples',
-    shortName: 'Groceries',
-    icon: '🌾',
-    description: 'Rice, Atta, Dals, Cooking Oils, Ghee, Spices & Dry Fruits',
-    badge: 'Daily Needs',
+    id: 'fresh-vegetables',
+    name: 'Fresh Vegetables',
+    shortName: 'Vegetables',
+    icon: '🥦',
+    description: 'Farm fresh tomatoes, onions, potatoes, greens & crisp vegetables',
+    badge: 'Farm Fresh',
+    color: 'from-emerald-500/10 to-green-500/10'
+  },
+  {
+    id: 'fresh-fruits',
+    name: 'Fresh Fruits',
+    shortName: 'Fruits',
+    icon: '🍎',
+    description: 'Crisp apples, bananas, juicy oranges, papayas & seasonal fruits',
+    badge: 'Sweet & Fresh',
     color: 'from-amber-500/10 to-orange-500/10'
   },
   {
@@ -16,6 +25,15 @@ export const CATEGORIES = [
     description: 'Fresh Milk, Curd, Paneer, Butter, Eggs & Bread',
     badge: 'Fresh Daily',
     color: 'from-blue-500/10 to-cyan-500/10'
+  },
+  {
+    id: 'groceries-staples',
+    name: 'Groceries & Staples',
+    shortName: 'Groceries',
+    icon: '🌾',
+    description: 'Rice, Atta, Dals, Cooking Oils, Ghee, Spices & Dry Fruits',
+    badge: 'Daily Needs',
+    color: 'from-amber-500/10 to-orange-500/10'
   },
   {
     id: 'snacks',

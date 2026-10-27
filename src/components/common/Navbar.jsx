@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, 
   ShoppingCart, 
@@ -10,7 +11,8 @@ import {
   Sparkles, 
   Clock, 
   ArrowRight,
-  Package
+  Package,
+  Phone
 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
@@ -65,24 +67,25 @@ export default function Navbar({
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm transition-all">
       {/* Top micro announcement bar */}
-      <div className="bg-gradient-to-r from-kirana-700 via-kirana-600 to-amber-600 text-white text-xs py-1.5 px-4 font-medium">
+      <div className="bg-[#16803D] text-white text-xs py-1.5 px-4 font-medium">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 bg-amber-400 text-slate-900 text-[10px] font-bold px-1.5 py-0.5 rounded">
-              ⚡ FAST
+            <span className="inline-flex items-center gap-1 bg-[#FF9F43] text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">
+              ⚡ 15-25 MINS
             </span>
-            <span>Delivery in 15-25 mins • Free delivery on orders above ₹{settings.freeDeliveryThreshold}</span>
+            <span className="text-white/95">Fresh groceries & farm produce • Free delivery on orders above ₹{settings.freeDeliveryThreshold}</span>
           </div>
-          <div className="hidden sm:flex items-center gap-4 text-[11px] opacity-90">
+          <div className="hidden sm:flex items-center gap-4 text-[11px] text-white/90">
             <a 
               href={`tel:${settings.phone || '+919392398990'}`} 
-              className="hover:underline hover:text-amber-200 transition-colors"
+              className="hover:underline hover:text-[#DDF7E5] transition-colors flex items-center gap-1"
               title="Call Store Helpline"
             >
-              Helpline: {settings.phone || '+91 9392398990'}
+              <Phone className="w-3 h-3 text-[#FF9F43]" />
+              <span>Helpline: {settings.phone || '+91 9392398990'}</span>
             </a>
             <span>•</span>
-            <span>Hours: {settings.operatingHours}</span>
+            <span>Daily: {settings.operatingHours}</span>
           </div>
         </div>
       </div>
@@ -91,42 +94,44 @@ export default function Navbar({
       <div className="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-3 sm:gap-6">
         
         {/* Brand Logo & Name */}
-        <button 
+        <motion.button 
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           onClick={onNavigateHome}
           className="flex items-center gap-2.5 text-left focus:outline-none group flex-shrink-0"
         >
-          <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-kirana-600 to-kirana-700 flex items-center justify-center text-white shadow-md shadow-kirana-600/30 group-hover:scale-105 transition-transform">
+          <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-[#16803D] to-[#0f5127] flex items-center justify-center text-white shadow-md shadow-[#16803D]/25 group-hover:shadow-lg transition-all">
             {/* Custom SVG Kirana Bag Icon */}
             <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
               <line x1="3" y1="6" x2="21" y2="6"/>
-              <path d="M16 10a4 4 0 0 1-8 0" stroke="#FBBF24" strokeWidth="2.5"/>
+              <path d="M16 10a4 4 0 0 1-8 0" stroke="#FF9F43" strokeWidth="2.5"/>
             </svg>
-            <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-amber-400 border-2 border-white rounded-full"></span>
+            <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-[#FF9F43] border-2 border-white rounded-full"></span>
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="font-extrabold text-xl sm:text-2xl tracking-tight text-slate-900 group-hover:text-kirana-700 transition-colors">
-                Smart<span className="text-kirana-600">Kirana</span>
+              <span className="font-extrabold text-xl sm:text-2xl tracking-tight text-[#202820]">
+                Smart<span className="text-[#16803D]">Kirana</span>
               </span>
             </div>
-            <p className="text-[10px] sm:text-[11px] font-semibold text-amber-600 -mt-1 tracking-wide uppercase">
+            <p className="text-[10px] sm:text-[11px] font-bold text-[#FF9F43] -mt-1 tracking-wider uppercase">
               Apki Apni Dukan
             </p>
           </div>
-        </button>
+        </motion.button>
 
         {/* Location Selector Pill */}
         <button
           onClick={onOpenLocation}
-          className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-100/80 hover:bg-slate-200/80 rounded-xl text-left border border-slate-200/60 transition-all text-xs max-w-[210px]"
+          className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-[#FAFAF5] hover:bg-[#DDF7E5]/50 rounded-2xl text-left border border-slate-200/80 transition-all text-xs max-w-[220px]"
           title="Change delivery location"
         >
-          <div className={`p-1.5 rounded-lg ${isServiceable ? 'bg-kirana-100 text-kirana-700' : 'bg-red-100 text-red-600'}`}>
+          <div className={`p-1.5 rounded-xl ${isServiceable ? 'bg-[#DDF7E5] text-[#16803D]' : 'bg-red-100 text-red-600'}`}>
             <MapPin className="w-4 h-4" />
           </div>
           <div className="truncate">
-            <div className="flex items-center gap-1 font-bold text-slate-800 text-[11px]">
+            <div className="flex items-center gap-1 font-bold text-[#202820] text-[11px]">
               <span>Delivery in 15 mins</span>
               <ChevronDown className="w-3 h-3 text-slate-400" />
             </div>
@@ -147,8 +152,8 @@ export default function Navbar({
                 setIsSearchOpen(true);
               }}
               onFocus={() => setIsSearchOpen(true)}
-              placeholder="Search for groceries, snacks, drinks, atta, milk..."
-              className="w-full pl-10 pr-9 py-2 sm:py-2.5 text-xs sm:text-sm bg-slate-100/90 border border-slate-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-kirana-500 focus:border-transparent transition-all placeholder:text-slate-400"
+              placeholder="Search farm vegetables, fruits, atta, milk, snacks, drinks..."
+              className="w-full pl-10 pr-9 py-2 sm:py-2.5 text-xs sm:text-sm bg-[#FAFAF5] border border-slate-200 rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#16803D] focus:border-transparent transition-all placeholder:text-slate-400 text-[#202820]"
             />
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
             {searchQuery && (
@@ -165,72 +170,80 @@ export default function Navbar({
           </div>
 
           {/* Autocomplete Dropdown */}
-          {isSearchOpen && searchQuery.trim().length > 0 && (
-            <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-elevated border border-slate-100 py-2 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-              <div className="px-3 py-1.5 text-[11px] font-semibold text-slate-400 uppercase tracking-wider flex items-center justify-between">
-                <span>Matching Products</span>
-                <span>{filteredSuggestions.length} found</span>
-              </div>
+          <AnimatePresence>
+            {isSearchOpen && searchQuery.trim().length > 0 && (
+              <motion.div 
+                initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                transition={{ duration: 0.15 }}
+                className="absolute left-0 right-0 top-full mt-2 bg-white rounded-3xl shadow-elevated border border-slate-100 py-2.5 z-50 overflow-hidden"
+              >
+                <div className="px-3.5 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                  <span>Matching Products</span>
+                  <span className="text-[#16803D] font-bold">{filteredSuggestions.length} found</span>
+                </div>
 
-              {filteredSuggestions.length > 0 ? (
-                <div className="divide-y divide-slate-50">
-                  {filteredSuggestions.map((item) => (
-                    <div
-                      key={item.id}
-                      onClick={() => {
-                        onSelectProduct(item);
-                        setIsSearchOpen(false);
-                      }}
-                      className="px-3 py-2 flex items-center justify-between hover:bg-slate-50 cursor-pointer transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <img 
-                          src={item.image} 
-                          alt={item.name} 
-                          className="w-9 h-9 object-cover rounded-lg border border-slate-100" 
-                        />
-                        <div>
-                          <p className="text-xs font-semibold text-slate-800 line-clamp-1">{item.name}</p>
-                          <p className="text-[10px] text-slate-500">{item.brand} • {item.size}</p>
+                {filteredSuggestions.length > 0 ? (
+                  <div className="divide-y divide-slate-50">
+                    {filteredSuggestions.map((item) => (
+                      <div
+                        key={item.id}
+                        onClick={() => {
+                          onSelectProduct(item);
+                          setIsSearchOpen(false);
+                        }}
+                        className="px-3.5 py-2.5 flex items-center justify-between hover:bg-[#FAFAF5] cursor-pointer transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <img 
+                            src={item.image} 
+                            alt={item.name} 
+                            className="w-10 h-10 object-cover rounded-xl border border-slate-100 bg-[#FAFAF5]" 
+                          />
+                          <div>
+                            <p className="text-xs font-bold text-[#202820] line-clamp-1">{item.name}</p>
+                            <p className="text-[10px] text-slate-500">{item.brand} • {item.size}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-xs font-extrabold text-[#202820]">{formatCurrency(item.price)}</span>
+                          {item.mrp > item.price && (
+                            <span className="block text-[10px] line-through text-slate-400">{formatCurrency(item.mrp)}</span>
+                          )}
                         </div>
                       </div>
-                      <div className="text-right">
-                        <span className="text-xs font-bold text-slate-900">{formatCurrency(item.price)}</span>
-                        {item.mrp > item.price && (
-                          <span className="block text-[10px] line-through text-slate-400">{formatCurrency(item.mrp)}</span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="px-4 py-6 text-center text-slate-500">
-                  <p className="text-xs">No exact matches for "{searchQuery}"</p>
-                  <p className="text-[11px] text-slate-400 mt-1">Try searching for rice, oil, milk, biscuits, chips</p>
-                </div>
-              )}
+                    ))}
+                  </div>
+                ) : (
+                  <div className="px-4 py-6 text-center text-slate-500">
+                    <p className="text-xs font-bold">No exact matches for "{searchQuery}"</p>
+                    <p className="text-[11px] text-slate-400 mt-1">Try searching for vegetables, milk, atta, rice, biscuits, chips</p>
+                  </div>
+                )}
 
-              {/* Category jump suggestions */}
-              <div className="mt-2 pt-2 border-t border-slate-100 px-3">
-                <p className="text-[10px] text-slate-400 mb-1.5 font-medium">Browse Categories:</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {categories.slice(0, 5).map(cat => (
-                    <button
-                      key={cat.id}
-                      onClick={() => {
-                        setSelectedCategory(cat.id);
-                        setIsSearchOpen(false);
-                        setSearchQuery('');
-                      }}
-                      className="text-[11px] px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-kirana-50 hover:text-kirana-700 text-slate-600 transition-colors"
-                    >
-                      {cat.icon} {cat.shortName}
-                    </button>
-                  ))}
+                {/* Category jump suggestions */}
+                <div className="mt-2 pt-2.5 border-t border-slate-100 px-3.5">
+                  <p className="text-[10px] text-slate-400 mb-1.5 font-bold uppercase tracking-wider">Browse Aisles:</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {categories.slice(0, 6).map(cat => (
+                      <button
+                        key={cat.id}
+                        onClick={() => {
+                          setSelectedCategory(cat.id);
+                          setIsSearchOpen(false);
+                          setSearchQuery('');
+                        }}
+                        className="text-[11px] font-semibold px-2.5 py-1 rounded-xl bg-[#FAFAF5] hover:bg-[#DDF7E5] hover:text-[#16803D] text-slate-700 transition-colors"
+                      >
+                        {cat.icon} {cat.shortName}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </div>
-          )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Action Controls */}
@@ -239,31 +252,31 @@ export default function Navbar({
           {/* Admin Switch Link */}
           <button
             onClick={onNavigateAdmin}
-            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl text-xs font-semibold transition-all ${
+            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-2xl text-xs font-bold transition-all ${
               isAdminActive 
-                ? 'bg-amber-500 text-slate-950 shadow-sm' 
-                : 'text-slate-600 hover:bg-slate-100'
+                ? 'bg-[#FF9F43] text-slate-950 shadow-sm' 
+                : 'text-slate-600 hover:bg-[#FAFAF5]'
             }`}
             title="Store Admin Dashboard"
           >
-            <ShieldCheck className="w-4 h-4 text-amber-500" />
+            <ShieldCheck className="w-4 h-4 text-[#FF9F43]" />
             <span className="hidden lg:inline">{isAdmin ? 'Admin Portal' : 'Admin'}</span>
           </button>
 
           {/* Orders Tracking Shortcut */}
           <button
             onClick={onNavigateOrders}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-2xl text-xs font-bold text-slate-700 hover:bg-[#FAFAF5] transition-colors"
             title="Track recent orders"
           >
-            <Package className="w-4 h-4 text-kirana-600" />
+            <Package className="w-4 h-4 text-[#16803D]" />
             <span className="hidden md:inline">Track Orders</span>
           </button>
 
           {/* User Account / Login Button */}
           <button
             onClick={onOpenAuth}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-2xl text-xs font-bold text-slate-700 hover:bg-[#FAFAF5] transition-colors"
           >
             <User className="w-4 h-4 text-slate-500" />
             <span className="hidden sm:inline">
@@ -271,21 +284,28 @@ export default function Navbar({
             </span>
           </button>
 
-          {/* Blinkit-Style Add to Cart Trigger Pill */}
-          <button
+          {/* Blinkit-Style Cart Trigger Pill */}
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.96 }}
             onClick={onOpenCart}
-            className={`relative flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-bold shadow-md transition-all active:scale-95 ${
+            className={`relative flex items-center gap-2 sm:gap-3 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold shadow-md transition-all ${
               totalItemsCount > 0 
-                ? 'bg-kirana-600 hover:bg-kirana-700 text-white shadow-kirana-600/30' 
+                ? 'bg-[#16803D] hover:bg-[#146c34] text-white shadow-[#16803D]/30 ring-2 ring-[#16803D]/20' 
                 : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
             }`}
           >
             <div className="relative">
               <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
               {totalItemsCount > 0 && (
-                <span className="absolute -top-2 -right-2.5 w-4 h-4 bg-amber-400 text-slate-900 text-[10px] font-black rounded-full flex items-center justify-center border border-white">
+                <motion.span 
+                  key={totalItemsCount}
+                  initial={{ scale: 0.5 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-2.5 -right-2.5 w-4 h-4 bg-[#FF9F43] text-slate-950 text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm"
+                >
                   {totalItemsCount}
-                </span>
+                </motion.span>
               )}
             </div>
 
@@ -297,24 +317,24 @@ export default function Navbar({
             ) : (
               <span className="hidden xs:inline">My Cart</span>
             )}
-          </button>
+          </motion.button>
 
         </div>
       </div>
 
       {/* Mobile Location Sub-bar */}
-      <div className="md:hidden px-3 py-1.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px]">
+      <div className="md:hidden px-3 py-1.5 bg-[#FAFAF5] border-t border-slate-100 flex items-center justify-between text-[11px]">
         <button 
           onClick={onOpenLocation}
           className="flex items-center gap-1.5 text-slate-700 truncate"
         >
-          <MapPin className="w-3.5 h-3.5 text-kirana-600 flex-shrink-0" />
-          <span className="font-semibold truncate">
+          <MapPin className="w-3.5 h-3.5 text-[#16803D] flex-shrink-0" />
+          <span className="font-bold truncate">
             {currentPincode ? `Delivering to PIN ${currentPincode}` : 'Select Delivery Location'}
           </span>
           <ChevronDown className="w-3 h-3 text-slate-400" />
         </button>
-        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isServiceable ? 'bg-kirana-100 text-kirana-700' : 'bg-red-100 text-red-600'}`}>
+        <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${isServiceable ? 'bg-[#DDF7E5] text-[#16803D]' : 'bg-red-100 text-red-600'}`}>
           {isServiceable ? '⚡ 15 Mins' : 'Not Serviceable'}
         </span>
       </div>

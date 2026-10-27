@@ -4,27 +4,34 @@
 
 @layer base {
   body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    color: #1e293b;
-    background-color: #f8fafc;
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #202820;
+    background-color: #FAFAF5;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: #DDF7E5;
+    color: #16803D;
   }
 }
 
-/* Custom scrollbars */
+/* Custom scrollbars matching fresh theme */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #FAFAF5;
 }
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #16803D;
 }
 
 /* Hide scrollbar for category pills / horizontal carousels */
@@ -34,6 +41,22 @@
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Smooth transitions */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* Subtle animation pulses */
@@ -51,7 +74,7 @@
   background: white;
   padding: 12px;
   border-radius: 16px;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px -2px rgba(32, 40, 32, 0.08);
   display: inline-block;
 }
 

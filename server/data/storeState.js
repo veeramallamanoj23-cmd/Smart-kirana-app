@@ -37,11 +37,14 @@ class StoreStateRepository {
       try {
         const raw = fs.readFileSync(DB_PATH, 'utf-8');
         const data = JSON.parse(raw);
-        this.products = data.products || [...INITIAL_PRODUCTS];
-        this.categories = data.categories || [...CATEGORIES];
+        const existingIds = new Set((data.products || []).map(p => p.id));
+        const missingProducts = INITIAL_PRODUCTS.filter(p => !existingIds.has(p.id));
+        this.products = [...missingProducts, ...(data.products || [])];
+        this.categories = CATEGORIES;
         this.orders = data.orders || [];
         this.settings = data.settings || { ...INITIAL_STORE_SETTINGS };
         this.admins = data.admins || [...DEFAULT_MASTER_ADMINS];
+        this.save();
         console.log(`[STORE_STATE] Loaded ${this.products.length} products, ${this.orders.length} orders from db.json`);
         return;
       } catch (err) {
@@ -77,6 +80,10 @@ class StoreStateRepository {
   // --- Products ---
   getAllProducts() {
     return this.products;
+  }
+
+  getCategories() {
+    return this.categories;
   }
 
   getProductById(id) {

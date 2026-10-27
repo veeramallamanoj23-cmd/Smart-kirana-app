@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Flame, Clock, Sparkles, ArrowRight } from 'lucide-react';
 import ProductCard from '../product/ProductCard';
 
@@ -24,20 +25,25 @@ export default function DealsSection({ products, onOpenDetail, onSelectCategory 
   if (dealProducts.length === 0) return null;
 
   return (
-    <section className="my-6 sm:my-8 bg-gradient-to-br from-amber-500/10 via-amber-400/5 to-kirana-500/10 p-4 sm:p-6 rounded-3xl border border-amber-200/50">
-      
+    <motion.section 
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.4 }}
+      className="my-6 sm:my-8 bg-gradient-to-br from-[#FFF3E6] via-white to-[#DDF7E5]/30 p-4 sm:p-6 rounded-3xl border border-[#FF9F43]/25 shadow-soft"
+    >
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-6">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-2xl bg-amber-500 text-slate-950 flex items-center justify-center font-bold shadow-md shadow-amber-500/20">
-            <Flame className="w-5 h-5 fill-slate-950" />
+          <div className="w-10 h-10 rounded-2xl bg-[#FF9F43] text-slate-950 flex items-center justify-center font-bold shadow-md shadow-[#FF9F43]/20">
+            <Flame className="w-5 h-5 fill-slate-950 text-slate-950" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">
+              <h3 className="text-lg sm:text-xl font-extrabold text-[#202820] tracking-tight">
                 Today's Lightning Deals
               </h3>
-              <span className="text-[10px] font-black uppercase bg-amber-500 text-slate-950 px-2 py-0.5 rounded-full">
+              <span className="text-[10px] font-black uppercase bg-[#FF9F43] text-slate-950 px-2.5 py-0.5 rounded-full shadow-sm">
                 Up to 25% OFF
               </span>
             </div>
@@ -46,15 +52,15 @@ export default function DealsSection({ products, onOpenDetail, onSelectCategory 
         </div>
 
         {/* Live Countdown Timer */}
-        <div className="flex items-center gap-2 self-start sm:self-auto bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-2xl border border-amber-200 shadow-sm text-xs">
-          <Clock className="w-4 h-4 text-amber-600" />
+        <div className="flex items-center gap-2 self-start sm:self-auto bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-2xl border border-[#FF9F43]/30 shadow-sm text-xs">
+          <Clock className="w-4 h-4 text-[#EA580C]" />
           <span className="font-semibold text-slate-600">Ends in:</span>
-          <div className="flex items-center gap-1 font-mono font-bold text-amber-700">
-            <span className="bg-amber-100 px-1.5 py-0.5 rounded">{String(timeLeft.hours).padStart(2, '0')}h</span>
+          <div className="flex items-center gap-1 font-mono font-bold text-[#EA580C]">
+            <span className="bg-[#FFF3E6] px-1.5 py-0.5 rounded text-[#EA580C]">{String(timeLeft.hours).padStart(2, '0')}h</span>
             <span>:</span>
-            <span className="bg-amber-100 px-1.5 py-0.5 rounded">{String(timeLeft.minutes).padStart(2, '0')}m</span>
+            <span className="bg-[#FFF3E6] px-1.5 py-0.5 rounded text-[#EA580C]">{String(timeLeft.minutes).padStart(2, '0')}m</span>
             <span>:</span>
-            <span className="bg-amber-100 px-1.5 py-0.5 rounded">{String(timeLeft.seconds).padStart(2, '0')}s</span>
+            <span className="bg-[#FFF3E6] px-1.5 py-0.5 rounded text-[#EA580C]">{String(timeLeft.seconds).padStart(2, '0')}s</span>
           </div>
         </div>
       </div>
@@ -69,6 +75,6 @@ export default function DealsSection({ products, onOpenDetail, onSelectCategory 
           />
         ))}
       </div>
-    </section>
+    </motion.section>
   );
 }

@@ -21,6 +21,9 @@ export function ProductProvider({ children }) {
       if (res.success && res.products && res.products.length > 0) {
         setProducts(res.products);
       }
+      if (res.success && res.categories && res.categories.length > 0) {
+        setCategories(res.categories);
+      }
     }).catch(err => {
       console.warn('[PRODUCT_SYNC_WARN] Server fetch failed, using cached store:', err.message);
     });

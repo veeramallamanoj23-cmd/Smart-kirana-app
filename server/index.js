@@ -108,6 +108,7 @@ app.get('/api/products', (req, res) => {
   res.json({
     success: true,
     products: storeDb.getAllProducts(),
+    categories: storeDb.getCategories ? storeDb.getCategories() : [],
     settings: storeDb.getStoreSettings()
   });
 });
